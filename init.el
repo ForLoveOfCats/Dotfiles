@@ -112,6 +112,7 @@
   scroll-conservatively 10000
   scroll-preserve-screen-position 1)
 
+
 ;;Parenthesis autocompletion and removal
 (smartparens-global-mode 1)
 
