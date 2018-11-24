@@ -20,6 +20,7 @@
 (require 'smartparens-config)
 (require 'real-auto-save)
 (require 'flx-ido)
+(require 'dired-sidebar)
 
 
 ;;Keybinds
@@ -73,7 +74,7 @@
   (newline)
   (yank)
   (pop kill-ring))
-(global-set-key (kbd "M-<down>") 'dup-line-below)
+(global-set-key (kbd "M-S-<down>") 'dup-line-below)
 
 (defun dup-line-above ()
   (interactive)
@@ -85,7 +86,24 @@
   (newline)
   (yank)
   (pop kill-ring))
-(global-set-key (kbd "M-<up>") 'dup-line-above)
+(global-set-key (kbd "M-S-<up>") 'dup-line-above)
+
+(defun move-line-up ()
+  "Move up the current line."
+  (interactive)
+  (transpose-lines 1)
+  (forward-line -2)
+  (indent-according-to-mode))
+(global-set-key (kbd "M-<up>") 'move-line-up)
+
+(defun move-line-down ()
+  "Move down the current line."
+  (interactive)
+  (forward-line 1)
+  (transpose-lines 1)
+  (forward-line -1)
+  (indent-according-to-mode))
+(global-set-key (kbd "M-<down>") 'move-line-down)
 
 ;; Make escape quit anything
 (defun minibuffer-keyboard-quit ()
@@ -100,6 +118,8 @@
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+(global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
 
 
 ;;Keyboard smooth scrolling
@@ -190,7 +210,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-	(expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
