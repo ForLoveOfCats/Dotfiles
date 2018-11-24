@@ -18,6 +18,7 @@
 (require 'expand-region)
 (require 'smartparens-config)
 (require 'real-auto-save)
+(require 'flx-ido)
 
 
 ;;Keybinds
@@ -141,6 +142,10 @@
 (global-display-line-numbers-mode)
 (set-frame-font "Monospace 9" nil t)
 (setq isearch-allow-scroll t)
+(require 'ido)
+(ido-mode t)
+(ido-everywhere 1)
+(flx-ido-mode 1)
 
 
 ;;Disable Autosave junk
