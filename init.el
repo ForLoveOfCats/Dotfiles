@@ -9,6 +9,7 @@
   (when (< emacs-major-version 24)
     ;; For important compatibility libraries like cl-lib
     (add-to-list 'package-archives (cons "gnu" (concat proto "://elpa.gnu.org/packages/")))))
+(add-to-list 'load-path "~/.emacs.d/EmacsPlugins/")
 (package-initialize)
 
 
@@ -35,7 +36,7 @@
   (move-beginning-of-line 1)
   (delete-region (point) (line-end-position))
   (delete-char -1))
-(global-set-key (kbd "C-<backspace>") 'no-copy-kill-whole-line)
+(global-set-key (kbd "S-<backspace>") 'no-copy-kill-whole-line)
 
 (defun no-copy-kill-to-word ()
   "kills to the next word without copying to kill ring"
@@ -45,17 +46,12 @@
    (progn
      (backward-word)
      (point))))
-(global-set-key (kbd "S-<backspace>") 'no-copy-kill-to-word)
+(global-set-key (kbd "C-<backspace>") 'no-copy-kill-to-word)
 
 (define-key projectile-mode-map (kbd "M-p") 'projectile-find-file)
 
-(defun indent-or-complete ()
-    (interactive)
-    (if (looking-at "\\_>")
-        (company-complete-selection)
-      (indent-according-to-mode)))
-(define-key company-active-map (kbd "<tab>") 'company-complete-selection)
-(define-key company-active-map (kbd "TAB") 'company-complete-selection)
+(define-key company-active-map (kbd "<tab>") 'company-complete-common)
+(define-key company-active-map (kbd "TAB") 'company-complete-common)
 
 (define-key company-active-map (kbd "<return>") nil)
 (define-key company-active-map (kbd "RET") nil)
@@ -122,7 +118,7 @@
 (transient-mark-mode -1) ;;Forces deselect when cursor move
 (delete-selection-mode 1)  ;;Start typing to overwrite selection
 
-(defadvice kill-ring-save (after keep-transient-mark-active ()) 
+(defadvice kill-ring-save (after keep-transient-mark-active ())
   "Override the deactivation of the mark."
   (setq deactivate-mark nil))
 (ad-activate 'kill-ring-save)
@@ -173,6 +169,8 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (setq company-idle-delay 0)
 (setq company-minimum-prefix-length 1)
+(setq company-require-match 'never)
+(setq company-frontends '(company-tng-frontend company-pseudo-tooltip-frontend))
 
 
 ;;C# stuff
