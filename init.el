@@ -21,6 +21,7 @@
 (require 'real-auto-save)
 (require 'flx-ido)
 (require 'dired-sidebar)
+(require 'multiple-cursors)
 
 
 ;;Keybinds
@@ -49,7 +50,11 @@
      (point))))
 (global-set-key (kbd "C-<backspace>") 'no-copy-kill-to-word)
 
-(define-key projectile-mode-map (kbd "M-p") 'projectile-find-file)
+(define-key projectile-mode-map (kbd "M-p") 'projectile-command-map)
+
+(global-set-key (kbd "<f12>") 'omnisharp-go-to-definition)
+
+(global-set-key (kbd "M-<backspace>") 'pop-global-mark)
 
 (define-key company-active-map (kbd "<tab>") 'company-complete-common)
 (define-key company-active-map (kbd "TAB") 'company-complete-common)
@@ -121,6 +126,30 @@
 
 (global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
 
+(defun toggle-semicolon ()
+  (interactive)
+  (save-excursion
+	(move-end-of-line 1)
+	(if (char-equal (char-before) ?\;)
+		(delete-char -1)
+	  (insert ?\;)
+	  )
+	)
+  )
+(global-set-key (kbd "C-;") 'toggle-semicolon)
+
+(global-set-key (kbd "C-S-a") 'comment-region)
+
+(defun highlight-then-select-next ()
+	"Highlights current word, following presses selects next instance"
+	(interactive)
+	(if (region-active-p)
+		(mc/mark-next-like-this 1)
+	  (er/expand-region 1)
+	  )
+	)
+(global-set-key (kbd "C-d") 'highlight-then-select-next)
+
 
 ;;Keyboard smooth scrolling
 (setq redisplay-dont-pause t
@@ -162,6 +191,8 @@
 (ido-mode t)
 (ido-everywhere 1)
 (flx-ido-mode 1)
+(run-with-idle-timer 1 t 'force-window-update) ;;Forces window to recalculate every second
+(blink-cursor-mode 0)
 
 
 ;;Disable Autosave junk
@@ -210,7 +241,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-	(dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
