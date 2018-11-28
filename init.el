@@ -191,7 +191,6 @@
 (ido-mode t)
 (ido-everywhere 1)
 (flx-ido-mode 1)
-(run-with-idle-timer 1 t 'force-window-update) ;;Forces window to recalculate every second
 (blink-cursor-mode 0)
 
 
