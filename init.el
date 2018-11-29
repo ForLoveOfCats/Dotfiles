@@ -22,6 +22,7 @@
 (require 'flx-ido)
 (require 'dired-sidebar)
 (require 'multiple-cursors)
+(require 'centered-cursor-mode)
 
 
 ;;Keybinds
@@ -37,7 +38,8 @@
   (interactive)
   (move-beginning-of-line 1)
   (delete-region (point) (line-end-position))
-  (delete-char -1))
+  (delete-char -1)
+  (next-line))
 (global-set-key (kbd "S-<backspace>") 'no-copy-kill-whole-line)
 
 (defun no-copy-kill-to-word ()
@@ -150,6 +152,61 @@
 	)
 (global-set-key (kbd "C-d") 'highlight-then-select-next)
 
+;;Funky navigation mode
+(setq nav/keybind (kbd "S-SPC"))
+(setq nav/old-map (current-global-map))
+(setq nav/modifier "")
+
+(defun nav/delete-char ()
+  (interactive)
+  (if (= (char-before) ?\n)
+	  (delete-char -1)
+	(delete-char 1)
+	)
+  )
+
+(defun nav/call-modified-bind (key)
+  (if (= key "w")
+	  (if (= nav/modifier "j")
+		  ())
+	)
+  )
+
+(defun nav/enable ()
+  (interactive)
+  (setq nav/old-map (current-global-map))
+  (use-global-map (make-sparse-keymap))
+  (set-face-foreground 'mode-line "white")
+  (set-face-background 'mode-line "blue")
+  (message "NAVIGATION MODE")
+  (global-set-key nav/keybind 'nav/disable)
+
+  (global-set-key (kbd "w") 'previous-line)
+  (global-set-key (kbd "s") 'next-line)
+  (global-set-key (kbd "d") 'right-char)
+  (global-set-key (kbd "a") 'left-char)
+  
+  (global-set-key (kbd "i") 'backward-paragraph)
+  (global-set-key (kbd "k") 'forward-paragraph)
+  (global-set-key (kbd "l") 'right-word)
+  (global-set-key (kbd "j") 'left-word)
+
+  (global-set-key (kbd "RET") 'create-and-move-to-newline-below)
+  (global-set-key (kbd "<backspace>") 'nav/delete-char)
+  )
+
+(defun nav/disable ()
+  (interactive)
+  (use-global-map nav/old-map)
+  (set-face-foreground 'mode-line "black")
+  (set-face-background 'mode-line "green")
+  (message "NORMAL MODE")
+  )
+
+(set-face-foreground 'mode-line "black")
+(set-face-background 'mode-line "green")
+(global-set-key nav/keybind 'nav/enable)
+
 
 ;;Keyboard smooth scrolling
 (setq redisplay-dont-pause t
@@ -192,6 +249,7 @@
 (ido-everywhere 1)
 (flx-ido-mode 1)
 (blink-cursor-mode 0)
+(global-centered-cursor-mode 1)
 
 
 ;;Disable Autosave junk
@@ -241,7 +299,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-	(multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
