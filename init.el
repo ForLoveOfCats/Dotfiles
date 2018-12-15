@@ -9,7 +9,7 @@
   (when (< emacs-major-version 24)
     ;; For important compatibility libraries like cl-lib
     (add-to-list 'package-archives (cons "gnu" (concat proto "://elpa.gnu.org/packages/")))))
-(add-to-list 'load-path "~/.emacs.d/EmacsPlugins/")
+(add-to-list 'load-path "~/Dotfiles/EmacsPlugins/")
 (package-initialize)
 
 
@@ -22,15 +22,25 @@
 (require 'flx-ido)
 (require 'dired-sidebar)
 (require 'multiple-cursors)
-(require 'centered-cursor-mode)
+(require 'bind-key)
+(require 'helm)
+(require 'helm-projectile)
+(require 'highlight-indent-guides)
+(require 'loop)
+(require 'auto-highlight-symbol)
+
+
+;;Only use one instance (used with EmacsAsEditor.sh)
+(server-start)
 
 
 ;;Keybinds
-(global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "C-c C-c") 'kill-ring-save)
+;; (global-set-key (kbd "C-z") 'undo)
+;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
 (define-key csharp-mode-map (kbd "C-c C-c") 'kill-ring-save) ;;Prevent csharp-mode from overriding kill-ring-save
-(global-set-key (kbd "C-v") 'yank)
+(global-set-key (kbd "RET") 'nav/csharp-newline)
+;; (bind-key* "C-v" 'yank)
 (global-set-key (kbd "<backspace>") 'backward-delete-char)
 
 (defun no-copy-kill-whole-line ()
@@ -40,7 +50,7 @@
   (delete-region (point) (line-end-position))
   (delete-char -1)
   (next-line))
-(global-set-key (kbd "S-<backspace>") 'no-copy-kill-whole-line)
+;; (global-set-key (kbd "S-<backspace>") 'no-copy-kill-whole-line)
 
 (defun no-copy-kill-to-word ()
   "kills to the next word without copying to kill ring"
@@ -50,11 +60,11 @@
    (progn
      (backward-word)
      (point))))
-(global-set-key (kbd "C-<backspace>") 'no-copy-kill-to-word)
+;; (global-set-key (kbd "C-<backspace>") 'no-copy-kill-to-word)
 
 (define-key projectile-mode-map (kbd "M-p") 'projectile-command-map)
 
-(global-set-key (kbd "<f12>") 'omnisharp-go-to-definition)
+;; (global-set-key (kbd "<f12>") 'omnisharp-go-to-definition)
 
 (global-set-key (kbd "M-<backspace>") 'pop-global-mark)
 
@@ -64,14 +74,14 @@
 (define-key company-active-map (kbd "<return>") nil)
 (define-key company-active-map (kbd "RET") nil)
 
-(global-set-key (kbd "C-=") 'er/expand-region)
+;; (global-set-key (kbd "C-=") 'er/expand-region)
 
 (defun create-and-move-to-newline-below ()
   (interactive)
   (move-end-of-line 1)
   (newline)
   (indent-for-tab-command))
-(global-set-key (kbd "C-<return>") 'create-and-move-to-newline-below)
+;; (global-set-key (kbd "C-<return>") 'create-and-move-to-newline-below)
 
 (defun dup-line-below ()
   (interactive)
@@ -81,7 +91,7 @@
   (newline)
   (yank)
   (pop kill-ring))
-(global-set-key (kbd "M-S-<down>") 'dup-line-below)
+;; (global-set-key (kbd "M-S-<down>") 'dup-line-below)
 
 (defun dup-line-above ()
   (interactive)
@@ -93,7 +103,7 @@
   (newline)
   (yank)
   (pop kill-ring))
-(global-set-key (kbd "M-S-<up>") 'dup-line-above)
+;; (global-set-key (kbd "M-S-<up>") 'dup-line-above)
 
 (defun move-line-up ()
   "Move up the current line."
@@ -101,7 +111,7 @@
   (transpose-lines 1)
   (forward-line -2)
   (indent-according-to-mode))
-(global-set-key (kbd "M-<up>") 'move-line-up)
+;; (global-set-key (kbd "M-<up>") 'move-line-up)
 
 (defun move-line-down ()
   "Move down the current line."
@@ -110,7 +120,7 @@
   (transpose-lines 1)
   (forward-line -1)
   (indent-according-to-mode))
-(global-set-key (kbd "M-<down>") 'move-line-down)
+;; (global-set-key (kbd "M-<down>") 'move-line-down)
 
 ;; Make escape quit anything
 (defun minibuffer-keyboard-quit ()
@@ -126,7 +136,7 @@
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 
-(global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
+;; (global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
 
 (defun toggle-semicolon ()
   (interactive)
@@ -138,9 +148,9 @@
 	  )
 	)
   )
-(global-set-key (kbd "C-;") 'toggle-semicolon)
+;; (global-set-key (kbd "C-;") 'toggle-semicolon)
 
-(global-set-key (kbd "C-S-a") 'comment-region)
+;; (global-set-key (kbd "C-S-a") 'comment-region)
 
 (defun highlight-then-select-next ()
 	"Highlights current word, following presses selects next instance"
@@ -150,62 +160,255 @@
 	  (er/expand-region 1)
 	  )
 	)
-(global-set-key (kbd "C-d") 'highlight-then-select-next)
+;; (global-set-key (kbd "C-d") 'highlight-then-select-next)
 
 ;;Funky navigation mode
-(setq nav/keybind (kbd "S-SPC"))
 (setq nav/old-map (current-global-map))
-(setq nav/modifier "")
+(setq nav/is-enabled nil)
 
-(defun nav/delete-char ()
+(defun er/prepare-for-more-expansions ())
+
+(defun my/kill-thing-at-point (thing)
+  "Kill the `thing-at-point' for the specified kind of THING."
+  (let ((bounds (bounds-of-thing-at-point thing)))
+    (if bounds
+        (kill-region (car bounds) (cdr bounds))
+      (error "No %s at point" thing)
+	  )
+	)
+  (pop kill-ring)
+  )
+
+(defun my/kill-word-at-point ()
+  "Kill the word at point."
   (interactive)
-  (if (= (char-before) ?\n)
-	  (delete-char -1)
-	(delete-char 1)
+  (my/kill-thing-at-point 'word)
+  )
+
+(defun nav/is-uppercase (char)
+	(seq-contains (number-sequence 65 90) char)
+	)
+
+(defun nav/is-whitespace (char)
+  (if (or (= char ?\s) (= char ?\t))
+	  t
+	nil)
+  )
+
+(defun nav/char-is-word (char)
+  (if (or (= char ?\s) (= char ?\t) (= char ?\n) (= char ?-) (= char ?_) (= char ?() (= char ?)) (= char ?{) (= char ?}) (= char ?\;) (= char ?/) (= char ?\") (= char ?\\) (= char ?.) (= char ?,))
+	  t
+	nil)
+  )
+
+(defun nav/right-word ()
+  (interactive)
+  (catch 'break
+	(if (nav/is-whitespace (char-after))
+		(progn
+		  (loop-while t
+			(right-char)
+			(if (not (nav/is-whitespace (char-after)))
+				(throw 'break "break")
+				)
+			)
+		  )
+	  )
+
+	(if (and (nav/is-uppercase (char-after)) (nav/is-uppercase (char-after (+ (point) 1))))
+		(progn
+		  (loop-while t
+			(right-char)
+			(if (not (nav/is-uppercase (char-after)))
+				(throw 'break "break")
+				)
+			)
+		  )
+	  )
+	
+	(if (nav/char-is-word (char-after))
+		(progn
+		  (right-char)
+		  (throw 'break "break")
+		  )
+	  )
+
+	(loop-while t
+	  (right-char)
+	  (if (or (nav/char-is-word (char-after)) (nav/is-uppercase (char-after)))
+		  (throw 'break "break")
+		)
+	  )
+	
 	)
   )
 
-(defun nav/call-modified-bind (key)
-  (if (= key "w")
-	  (if (= nav/modifier "j")
-		  ())
+(defun nav/left-word ()
+  (interactive)
+  (catch 'break
+	(if (nav/is-whitespace (char-before))
+		(progn
+		  (loop-while t
+			(left-char)
+			(if (not (nav/is-whitespace (char-before)))
+				(throw 'break "break")
+			  )
+			)
+		  )
+	  )
+
+	(if (and (nav/is-uppercase (char-before)) (nav/is-uppercase (char-before (- (point) 1))))
+		(progn
+		  (loop-while t
+			(left-char)
+			(if (not (nav/is-uppercase (char-before)))
+				(throw 'break "break")
+			  )
+			)
+		  )
+	  )
+
+	(if (nav/char-is-word (char-before))
+		(progn
+		  (left-char)
+		  (throw 'break "break")
+		  )
+	  )
+
+	(loop-while t
+	  (left-char)
+	  (if (or (nav/char-is-word (char-before)) (nav/is-uppercase (char-after)))
+		(throw 'break "break")
+		)
+	  )
+	
 	)
+  )
+
+(defun nav/delete-word-back ()
+  (interactive)
+  (if (= (point) 1)
+	  nil
+	(progn 
+	  (activate-mark)
+	  (set-mark (point))
+	  (nav/left-word)
+	  (backward-delete-char 1)
+	  (deactivate-mark)
+	  )
+	)
+  )
+
+(defun nav/csharp-newline ()
+  (interactive)
+  (if (and (= (char-before) ?{) (= (char-after) ?}))
+	  (progn
+		(newline)
+		(indent-for-tab-command)
+		(previous-line)
+		(create-and-move-to-newline-below)
+		)
+	(newline)
+	)
+  (indent-for-tab-command)
+  )
+
+(defun nav/kill-buffer-or-window ()
+  (interactive)
+  (if (= (length (window-list)) 1)
+	  (kill-buffer (current-buffer))
+	(delete-window))
   )
 
 (defun nav/enable ()
   (interactive)
+  (setq nav/is-enabled t)
   (setq nav/old-map (current-global-map))
   (use-global-map (make-sparse-keymap))
   (set-face-foreground 'mode-line "white")
   (set-face-background 'mode-line "blue")
-  (message "NAVIGATION MODE")
-  (global-set-key nav/keybind 'nav/disable)
 
-  (global-set-key (kbd "w") 'previous-line)
-  (global-set-key (kbd "s") 'next-line)
+  (define-key csharp-mode-map ";" nil)
+  (define-key csharp-mode-map "," nil)
+  (define-key csharp-mode-map ";" nil)
+  (define-key csharp-mode-map "/" nil)
+  
+  (global-set-key (kbd "w") (lambda () (interactive) (if helm-alive-p (helm-previous-line) (previous-line))))
+  (global-set-key (kbd "s") (lambda () (interactive) (if helm-alive-p (helm-next-line) (next-line))))
   (global-set-key (kbd "d") 'right-char)
   (global-set-key (kbd "a") 'left-char)
   
-  (global-set-key (kbd "i") 'backward-paragraph)
-  (global-set-key (kbd "k") 'forward-paragraph)
-  (global-set-key (kbd "l") 'right-word)
-  (global-set-key (kbd "j") 'left-word)
+  (global-set-key (kbd ",") 'beginning-of-line-text)
+  (global-set-key (kbd ".") 'end-of-line)
 
-  (global-set-key (kbd "RET") 'create-and-move-to-newline-below)
-  (global-set-key (kbd "<backspace>") 'nav/delete-char)
+  (global-set-key (kbd "'") 'backward-paragraph)
+  (global-set-key (kbd "/") 'forward-paragraph)
+  
+  (global-set-key (kbd "<mouse-1>") 'mouse-set-point)
+  (mouse-wheel-mode t)
+  
+  (global-set-key (kbd "]") 'nav/right-word)
+  (global-set-key (kbd "[") 'nav/left-word)
+  
+  (global-set-key (kbd "h") 'describe-key)
+
+  (global-set-key (kbd "m") 'dup-line-below)
+  (global-set-key (kbd "l") (lambda () (interactive) (beginning-of-line) (kill-line) (yank)))
+  
+  (global-set-key (kbd "=") (lambda () (interactive) (er/expand-region 1)))
+  (global-set-key (kbd "-") (lambda () (interactive) (er/expand-region -1)))
+
+  (global-set-key (kbd "t") 'highlight-then-select-next)
+  
+  (global-set-key (kbd "RET") 'nav/csharp-newline)
+  (global-set-key (kbd "n") 'create-and-move-to-newline-below)
+  (global-set-key (kbd "SPC") 'self-insert-command)
+  (global-set-key (kbd "<tab>") 'indent-for-tab-command)
+  (global-set-key (kbd ";") 'toggle-semicolon)
+
+  (global-set-key (kbd "e") (lambda () (interactive) (comment-line 1) (previous-line) (indent-for-tab-command)))
+  
+  (global-set-key (kbd "z") 'undo)
+  (global-set-key (kbd "g") (lambda () (interactive) (mc/keyboard-quit) (keyboard-quit)))
+
+  (global-set-key (kbd "v") (lambda () (interactive) (yank) (indent-for-tab-command)))
+  (global-set-key (kbd "c") 'kill-ring-save)
+
+  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (helm-projectile)))
+  (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-grep)))
+  (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (projectile-replace)))
+  (global-set-key (kbd "f") (lambda () (interactive) (nav/disable) (omnisharp-helm-find-symbols)))
+  (global-set-key (kbd "r") (lambda () (interactive) (nav/disable) (omnisharp-rename)))
+  (global-set-key (kbd "y") 'omnisharp-go-to-definition)
+  (global-set-key (kbd "u") 'omnisharp-helm-find-usages)
+  (global-set-key (kbd "j") 'helm-execute-persistent-action)
+
+  (global-set-key (kbd "<backspace>") 'backward-delete-char)
+  (global-set-key (kbd "\\") 'nav/delete-word-back)
+  (global-set-key (kbd "k") 'no-copy-kill-whole-line)
+  (global-set-key (kbd "x") 'my/kill-word-at-point)
+
+  (global-set-key (kbd "b") (lambda () (interactive) (nav/disable) (helm-buffers-list)))
+  (global-set-key (kbd "q") 'nav/kill-buffer-or-window)
   )
 
 (defun nav/disable ()
   (interactive)
+  (setq nav/is-enabled nil)
   (use-global-map nav/old-map)
   (set-face-foreground 'mode-line "black")
   (set-face-background 'mode-line "green")
-  (message "NORMAL MODE")
   )
 
-(set-face-foreground 'mode-line "black")
-(set-face-background 'mode-line "green")
-(global-set-key nav/keybind 'nav/enable)
+(defun nav/toggle ()
+  (interactive)
+  (if nav/is-enabled
+	  (nav/disable)
+	(nav/enable)
+	)
+  )
+
+(bind-key* "S-SPC" 'nav/toggle)
 
 
 ;;Keyboard smooth scrolling
@@ -221,7 +424,7 @@
 
 
 ;;Text selection settings
-(transient-mark-mode -1) ;;Forces deselect when cursor move
+(transient-mark-mode 1) ;;Forces deselect when cursor move
 (delete-selection-mode 1)  ;;Start typing to overwrite selection
 
 (defadvice kill-ring-save (after keep-transient-mark-active ())
@@ -233,6 +436,10 @@
 ;;Mouse settings
 (setq mouse-wheel-progressive-speed nil)
 
+
+;;Save recent files list
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
 
 ;;GUI stuff
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
@@ -249,7 +456,11 @@
 (ido-everywhere 1)
 (flx-ido-mode 1)
 (blink-cursor-mode 0)
-(global-centered-cursor-mode 1)
+(show-smartparens-global-mode t)
+;; (setq sp-show-pair-delay 0)
+;; (global-auto-highlight-symbol-mode t)
+(set-face-foreground 'mode-line "black")
+(set-face-background 'mode-line "green")
 
 
 ;;Disable Autosave junk
@@ -258,6 +469,7 @@
 
 
 ;;Real Autosave
+(add-hook 'text-mode-hook 'real-auto-save-mode)
 (add-hook 'prog-mode-hook 'real-auto-save-mode)
 (setq real-auto-save-interval 1) ;;Autosave every x seconds
 (add-hook 'focus-out-hook (lambda () (save-some-buffers t))) ;;Save when switching buffers/selecting different app
@@ -271,6 +483,7 @@
 ;;Tabs'n'whitespace
 (setq-default indent-tabs-mode t)
 (setq-default tab-width 4)
+;; (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 
 
 ;;Global company-mode
@@ -283,26 +496,31 @@
 
 ;;C# stuff
 (add-hook 'csharp-mode-hook 'omnisharp-mode)
-(setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32/run")
+(setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32.1/run")
 (eval-after-load
  'company
  '(add-to-list 'company-backends 'company-omnisharp))
 (add-hook 'csharp-mode-hook #'company-mode)
 (add-hook 'csharp-mode-hook #'flycheck-mode)
+(setq flycheck-checker-error-threshold 1000)
 
 
 ;;Automatic stuff
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-	(centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ahs-idle-interval 0)
+ '(git-gutter:update-interval 1)
+ '(package-selected-packages
+   (quote
+	(magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
