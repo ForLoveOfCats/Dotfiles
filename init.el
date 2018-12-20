@@ -35,6 +35,7 @@
 
 
 ;;Keybinds
+(global-set-key (kbd "M-x") 'helm-M-x)
 ;; (global-set-key (kbd "C-z") 'undo)
 ;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
@@ -299,6 +300,25 @@
 	)
   )
 
+(defun nav/delete-to-line-start ()
+  (interactive)
+  (activate-mark)
+  (set-mark (point))
+  (beginning-of-line-text)
+  (backward-delete-char 1)
+  (deactivate-mark)
+  )
+
+
+(defun nav/delete-to-line-end ()
+  (interactive)
+  (activate-mark)
+  (set-mark (point))
+  (end-of-line)
+  (backward-delete-char 1)
+  (deactivate-mark)
+  )
+
 (defun nav/csharp-newline ()
   (interactive)
   (if (and (= (char-before) ?{) (= (char-after) ?}))
@@ -339,7 +359,9 @@
   (global-set-key (kbd "a") 'left-char)
   
   (global-set-key (kbd ",") 'beginning-of-line-text)
+  (global-set-key (kbd "<") 'nav/delete-to-line-start)
   (global-set-key (kbd ".") 'end-of-line)
+  (global-set-key (kbd ">") 'nav/delete-to-line-end)
 
   (global-set-key (kbd "'") 'backward-paragraph)
   (global-set-key (kbd "/") 'forward-paragraph)
@@ -441,6 +463,17 @@
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
 
+
+;;Helm fuzzy search stuff
+(require 'helm-flx)
+(helm-flx-mode +1)
+(setq helm-M-x-fuzzy-match t)
+(setq helm-mode-fuzzy-match t)
+(setq helm-completion-in-region-fuzzy-match t)
+(setq helm-flx-for-helm-find-files t)
+(setq helm-flx-for-helm-locate t)
+
+
 ;;GUI stuff
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 (setq initial-buffer-choice t)
@@ -524,4 +557,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
