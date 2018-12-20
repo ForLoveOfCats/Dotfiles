@@ -456,6 +456,7 @@
 (ido-everywhere 1)
 (flx-ido-mode 1)
 (blink-cursor-mode 0)
+(setq-default cursor-type 'bar) 
 (show-smartparens-global-mode t)
 ;; (setq sp-show-pair-delay 0)
 ;; (global-auto-highlight-symbol-mode t)
@@ -496,7 +497,7 @@
 
 ;;C# stuff
 (add-hook 'csharp-mode-hook 'omnisharp-mode)
-(setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32.1/run")
+;; (setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32.1/run")
 (eval-after-load
  'company
  '(add-to-list 'company-backends 'company-omnisharp))
