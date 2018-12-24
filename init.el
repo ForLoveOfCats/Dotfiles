@@ -403,7 +403,7 @@
   
   (global-set-key (kbd "h") 'describe-key)
 
-  (global-set-key (kbd "l") (lambda () (interactive) (beginning-of-line) (kill-line) (yank)))
+  (global-set-key (kbd "l") (lambda () (interactive) (let ((old-pos (point))) (beginning-of-line) (kill-line) (yank) (goto-char old-pos))))
   
   (global-set-key (kbd "=") (lambda () (interactive) (er/expand-region 1)))
   (global-set-key (kbd "-") (lambda () (interactive) (er/expand-region -1)))
