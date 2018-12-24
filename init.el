@@ -36,6 +36,7 @@
 
 ;;Keybinds
 (global-set-key (kbd "M-x") 'helm-M-x)
+(defadvice mouse-set-point (before mouse-set-point-before activate) (deactivate-mark))
 ;; (global-set-key (kbd "C-z") 'undo)
 ;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
