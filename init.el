@@ -340,6 +340,21 @@
 	(delete-window))
   )
 
+(defun nav/toggle-selection ()
+  (interactive)
+  (if (not mark-active)
+	  (progn
+		(activate-mark)
+		(set-mark (point))
+		(message "Enabled mark")
+		)
+	(progn
+	  (deactivate-mark)
+	  (message "Disabled mark")
+	  )
+	)
+  )
+
 (defun nav/enable ()
   (interactive)
   (setq nav/is-enabled t)
@@ -357,6 +372,8 @@
   (global-set-key (kbd "s") (lambda () (interactive) (if helm-alive-p (helm-next-line) (next-line))))
   (global-set-key (kbd "d") 'right-char)
   (global-set-key (kbd "a") 'left-char)
+
+  (global-set-key (kbd "m") 'nav/toggle-selection)
   
   (global-set-key (kbd ",") 'beginning-of-line-text)
   (global-set-key (kbd "<") 'nav/delete-to-line-start)
@@ -374,7 +391,6 @@
   
   (global-set-key (kbd "h") 'describe-key)
 
-  (global-set-key (kbd "m") 'dup-line-below)
   (global-set-key (kbd "l") (lambda () (interactive) (beginning-of-line) (kill-line) (yank)))
   
   (global-set-key (kbd "=") (lambda () (interactive) (er/expand-region 1)))
@@ -537,6 +553,7 @@
 (add-hook 'csharp-mode-hook #'company-mode)
 (add-hook 'csharp-mode-hook #'flycheck-mode)
 (setq flycheck-checker-error-threshold 1000)
+(setq omnisharp-expected-server-version "1.32.5")
 
 
 ;;Automatic stuff
