@@ -355,6 +355,18 @@
 	)
   )
 
+(defun nav/kill-line-or-lines ()
+  (interactive)
+  (if mark-active
+	  (progn
+		(backward-delete-char 1)
+		(deactivate-mark)
+		(no-copy-kill-whole-line)
+		)
+	(no-copy-kill-whole-line)
+	)
+  )
+
 (defun nav/enable ()
   (interactive)
   (setq nav/is-enabled t)
@@ -423,7 +435,7 @@
 
   (global-set-key (kbd "<backspace>") 'backward-delete-char)
   (global-set-key (kbd "\\") 'nav/delete-word-back)
-  (global-set-key (kbd "k") 'no-copy-kill-whole-line)
+  (global-set-key (kbd "k") 'nav/kill-line-or-lines)
   (global-set-key (kbd "x") 'my/kill-word-at-point)
 
   (global-set-key (kbd "b") (lambda () (interactive) (nav/disable) (helm-buffers-list)))
