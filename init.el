@@ -301,6 +301,20 @@
 	)
   )
 
+(defun nav/delete-word-forward ()
+  (interactive)
+  (if (= (point) 1)
+	  nil
+	(progn 
+	  (activate-mark)
+	  (set-mark (point))
+	  (nav/right-word)
+	  (backward-delete-char 1)
+	  (deactivate-mark)
+	  )
+	)
+  )
+
 (defun nav/delete-to-line-start ()
   (interactive)
   (activate-mark)
@@ -435,7 +449,9 @@
   (global-set-key (kbd "j") 'helm-execute-persistent-action)
 
   (global-set-key (kbd "<backspace>") 'backward-delete-char)
+  (global-set-key (kbd "S-<backspace>") (lambda () (interactive) (backward-delete-char -1)))
   (global-set-key (kbd "\\") 'nav/delete-word-back)
+  (global-set-key (kbd "|") 'nav/delete-word-forward)
   (global-set-key (kbd "k") 'nav/kill-line-or-lines)
   (global-set-key (kbd "x") 'my/kill-word-at-point)
 
