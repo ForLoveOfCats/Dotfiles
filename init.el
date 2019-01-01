@@ -478,6 +478,10 @@
 (bind-key* "S-SPC" 'nav/toggle)
 
 
+(defun overwrite-mode ()
+  (interactive))
+
+
 ;;Keyboard smooth scrolling
 (setq redisplay-dont-pause t
   scroll-margin 1
@@ -603,4 +607,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
