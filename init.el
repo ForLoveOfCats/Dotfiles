@@ -28,6 +28,8 @@
 (require 'highlight-indent-guides)
 (require 'loop)
 (require 'auto-highlight-symbol)
+(require 'odin-mode)
+(require 'flycheck-odin)
 
 
 ;;Only use one instance (used with EmacsAsEditor.sh)
@@ -336,16 +338,20 @@
 
 (defun nav/csharp-newline ()
   (interactive)
-  (if (and (= (char-before) ?{) (= (char-after) ?}))
+  (if (equal major-mode 'csharp-mode)
 	  (progn
-		(newline)
-		(indent-for-tab-command)
-		(previous-line)
-		(create-and-move-to-newline-below)
-		)
+		(if (and (= (char-before) ?{) (= (char-after) ?}))
+			(progn
+			  (newline)
+			  (indent-for-tab-command)
+			  (previous-line)
+			  (create-and-move-to-newline-below)
+			  )
+		  (newline)
+		  )
+		(indent-for-tab-command))
 	(newline)
 	)
-  (indent-for-tab-command)
   )
 
 (defun nav/kill-buffer-or-window ()
@@ -379,6 +385,14 @@
 		(no-copy-kill-whole-line)
 		)
 	(no-copy-kill-whole-line)
+	)
+  )
+
+(defun nav/smart-tab ()
+  (interactive)
+  (if (eq major-mode (default-value 'major-mode))
+	  (insert "	")
+	(indent-for-tab-command)
 	)
   )
 
@@ -428,7 +442,7 @@
   (global-set-key (kbd "RET") 'nav/csharp-newline)
   (global-set-key (kbd "n") 'create-and-move-to-newline-below)
   (global-set-key (kbd "SPC") 'self-insert-command)
-  (global-set-key (kbd "<tab>") 'indent-for-tab-command)
+  (global-set-key (kbd "<tab>") 'nav/smart-tab)
   (global-set-key (kbd ";") 'toggle-semicolon)
 
   (global-set-key (kbd "e") (lambda () (interactive) (comment-line 1) (previous-line) (indent-for-tab-command)))
@@ -476,6 +490,8 @@
   )
 
 (bind-key* "S-SPC" 'nav/toggle)
+(global-set-key (kbd "<tab>") 'nav/smart-tab)
+
 
 
 (defun overwrite-mode ()
@@ -589,6 +605,9 @@
 (setq omnisharp-expected-server-version "1.32.5")
 
 
+(eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-odin-setup))
+
+
 ;;Automatic stuff
 
 (custom-set-faces
@@ -607,4 +626,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
