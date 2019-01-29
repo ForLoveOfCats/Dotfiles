@@ -24,7 +24,8 @@
 (require 'multiple-cursors)
 (require 'bind-key)
 (require 'helm)
-(require 'helm-projectile)
+(require 'ivy)
+;; (require 'helm-projectile)
 (require 'highlight-indent-guides)
 (require 'loop)
 (require 'auto-highlight-symbol)
@@ -39,13 +40,14 @@
 ;;Keybinds
 (global-set-key (kbd "M-x") 'helm-M-x)
 (defadvice mouse-set-point (before mouse-set-point-before activate) (deactivate-mark))
-;; (global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "C-z") 'undo)
 ;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
 (define-key csharp-mode-map (kbd "C-c C-c") 'kill-ring-save) ;;Prevent csharp-mode from overriding kill-ring-save
 (global-set-key (kbd "RET") 'nav/csharp-newline)
 ;; (bind-key* "C-v" 'yank)
 (global-set-key (kbd "<backspace>") 'backward-delete-char)
+(cua-mode)
 
 (defun no-copy-kill-whole-line ()
   "kill-whole-line without copying to kill ring"
@@ -411,6 +413,8 @@
   
   (global-set-key (kbd "w") (lambda () (interactive) (if helm-alive-p (helm-previous-line) (previous-line))))
   (global-set-key (kbd "s") (lambda () (interactive) (if helm-alive-p (helm-next-line) (next-line))))
+  ;; (global-set-key (kbd "w") (lambda () (interactive) (previous-line)))
+  ;; (global-set-key (kbd "s") (lambda () (interactive) (next-line)))
   (global-set-key (kbd "d") 'right-char)
   (global-set-key (kbd "a") 'left-char)
 
@@ -453,7 +457,8 @@
   (global-set-key (kbd "v") (lambda () (interactive) (yank) (indent-for-tab-command)))
   (global-set-key (kbd "c") 'kill-ring-save)
 
-  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (helm-projectile)))
+  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (projectile-find-file)))
+  (global-set-key (kbd "S-p") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
   (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-grep)))
   (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (projectile-replace)))
   (global-set-key (kbd "f") (lambda () (interactive) (nav/disable) (omnisharp-helm-find-symbols)))
@@ -499,11 +504,12 @@
 
 
 ;;Keyboard smooth scrolling
-(setq redisplay-dont-pause t
-  scroll-margin 1
-  scroll-step 1
-  scroll-conservatively 10000
-  scroll-preserve-screen-position 1)
+;; (setq redisplay-dont-pause t
+;; scroll-margin 1
+;; scroll-step 1
+;; scroll-conservatively 10000
+;; scroll-preserve-screen-position 1)
+(setq scroll-step 1)
 
 
 ;;Parenthesis autocompletion and removal
@@ -543,6 +549,7 @@
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 (setq initial-buffer-choice t)
 (projectile-mode +1)
+(setq projectile-completion-system 'ivy)
 (global-git-gutter-mode +1)
 (tool-bar-mode -1)
 (load-theme 'atom-one-dark t)
@@ -550,16 +557,30 @@
 (set-frame-font "Monospace 9" nil t)
 (setq isearch-allow-scroll t)
 (require 'ido)
-(ido-mode t)
-(ido-everywhere 1)
+;; (ido-mode t)
+;; (ido-everywhere 1)
 (flx-ido-mode 1)
+;; (setq ido-everywhere t)
+;; (ido-mode 1)
+(ivy-mode 1)
+(setq ivy-re-builders-alist
+      '((t . ivy--regex-fuzzy)))
+(setq ivy-initial-inputs-alist nil)
 (blink-cursor-mode 0)
-(setq-default cursor-type 'bar) 
+(setq-default cursor-type 'bar)
 (show-smartparens-global-mode t)
 ;; (setq sp-show-pair-delay 0)
 ;; (global-auto-highlight-symbol-mode t)
 (set-face-foreground 'mode-line "black")
 (set-face-background 'mode-line "green")
+(setq-default show-trailing-whitespace t)
+(global-hl-line-mode)
+
+(add-hook 'minibuffer-setup-hook 'eval-minibuffer-company)
+(defun eval-minibuffer-company ()
+  "enable company-mode during eval-expression"
+  (if (eq this-command 'eval-expression)
+	  (company-mode)))
 
 
 ;;Disable Autosave junk
@@ -591,6 +612,11 @@
 (setq company-minimum-prefix-length 1)
 (setq company-require-match 'never)
 (setq company-frontends '(company-tng-frontend company-pseudo-tooltip-frontend))
+
+
+;GC
+(setq gc-cons-threshold (eval-when-compile (* 1024 1024 500)))
+(run-with-idle-timer 2 t (lambda () (garbage-collect)))
 
 
 ;;C# stuff
@@ -626,4 +652,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
