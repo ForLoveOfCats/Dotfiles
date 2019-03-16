@@ -31,6 +31,7 @@
 (require 'auto-highlight-symbol)
 (require 'odin-mode)
 (require 'flycheck-odin)
+(require 'smart-tabs-mode)
 
 
 ;;Only use one instance (used with EmacsAsEditor.sh)
@@ -48,6 +49,7 @@
 ;; (bind-key* "C-v" 'yank)
 (global-set-key (kbd "<backspace>") 'backward-delete-char)
 (cua-mode)
+(setq cua-keep-region-after-copy t)
 
 (defun no-copy-kill-whole-line ()
   "kill-whole-line without copying to kill ring"
@@ -86,7 +88,8 @@
   (interactive)
   (move-end-of-line 1)
   (newline)
-  (indent-for-tab-command))
+  ;; (indent-for-tab-command)
+  )
 ;; (global-set-key (kbd "C-<return>") 'create-and-move-to-newline-below)
 
 (defun dup-line-below ()
@@ -231,7 +234,7 @@
 			)
 		  )
 	  )
-	
+
 	(if (nav/char-is-word (char-after))
 		(progn
 		  (right-char)
@@ -245,7 +248,7 @@
 		  (throw 'break "break")
 		)
 	  )
-	
+
 	)
   )
 
@@ -287,7 +290,7 @@
 		(throw 'break "break")
 		)
 	  )
-	
+
 	)
   )
 
@@ -295,7 +298,7 @@
   (interactive)
   (if (= (point) 1)
 	  nil
-	(progn 
+	(progn
 	  (activate-mark)
 	  (set-mark (point))
 	  (nav/left-word)
@@ -309,7 +312,7 @@
   (interactive)
   (if (= (point) 1)
 	  nil
-	(progn 
+	(progn
 	  (activate-mark)
 	  (set-mark (point))
 	  (nav/right-word)
@@ -345,13 +348,14 @@
 		(if (and (= (char-before) ?{) (= (char-after) ?}))
 			(progn
 			  (newline)
-			  (indent-for-tab-command)
+			  ;; (indent-for-tab-command)
 			  (previous-line)
 			  (create-and-move-to-newline-below)
 			  )
 		  (newline)
 		  )
-		(indent-for-tab-command))
+		;; (indent-for-tab-command)
+		)
 	(newline)
 	)
   )
@@ -410,7 +414,7 @@
   (define-key csharp-mode-map "," nil)
   (define-key csharp-mode-map ";" nil)
   (define-key csharp-mode-map "/" nil)
-  
+
   (global-set-key (kbd "w") (lambda () (interactive) (if helm-alive-p (helm-previous-line) (previous-line))))
   (global-set-key (kbd "s") (lambda () (interactive) (if helm-alive-p (helm-next-line) (next-line))))
   ;; (global-set-key (kbd "w") (lambda () (interactive) (previous-line)))
@@ -419,7 +423,7 @@
   (global-set-key (kbd "a") 'left-char)
 
   (global-set-key (kbd "m") 'nav/toggle-selection)
-  
+
   (global-set-key (kbd ",") 'beginning-of-line-text)
   (global-set-key (kbd "<") 'nav/delete-to-line-start)
   (global-set-key (kbd ".") 'end-of-line)
@@ -427,22 +431,22 @@
 
   (global-set-key (kbd "'") 'backward-paragraph)
   (global-set-key (kbd "/") 'forward-paragraph)
-  
+
   (global-set-key (kbd "<mouse-1>") 'mouse-set-point)
   (mouse-wheel-mode t)
-  
+
   (global-set-key (kbd "]") 'nav/right-word)
   (global-set-key (kbd "[") 'nav/left-word)
-  
+
   (global-set-key (kbd "h") 'describe-key)
 
   (global-set-key (kbd "l") (lambda () (interactive) (let ((old-pos (point))) (beginning-of-line) (kill-line) (yank) (goto-char old-pos))))
-  
+
   (global-set-key (kbd "=") (lambda () (interactive) (er/expand-region 1)))
   (global-set-key (kbd "-") (lambda () (interactive) (er/expand-region -1)))
 
   (global-set-key (kbd "t") 'highlight-then-select-next)
-  
+
   (global-set-key (kbd "RET") 'nav/csharp-newline)
   (global-set-key (kbd "n") 'create-and-move-to-newline-below)
   (global-set-key (kbd "SPC") 'self-insert-command)
@@ -450,16 +454,17 @@
   (global-set-key (kbd ";") 'toggle-semicolon)
 
   (global-set-key (kbd "e") (lambda () (interactive) (comment-line 1) (previous-line) (indent-for-tab-command)))
-  
+
   (global-set-key (kbd "z") 'undo)
   (global-set-key (kbd "g") (lambda () (interactive) (mc/keyboard-quit) (keyboard-quit)))
 
   (global-set-key (kbd "v") (lambda () (interactive) (yank) (indent-for-tab-command)))
   (global-set-key (kbd "c") 'kill-ring-save)
 
-  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (projectile-find-file)))
-  (global-set-key (kbd "S-p") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
-  (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-grep)))
+  (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
+  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (fzf)))
+  ;; (global-set-key (kbd "S-p") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
+  ;; (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-grep)))
   (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (projectile-replace)))
   (global-set-key (kbd "f") (lambda () (interactive) (nav/disable) (omnisharp-helm-find-symbols)))
   (global-set-key (kbd "r") (lambda () (interactive) (nav/disable) (omnisharp-rename)))
@@ -567,7 +572,7 @@
       '((t . ivy--regex-fuzzy)))
 (setq ivy-initial-inputs-alist nil)
 (blink-cursor-mode 0)
-(setq-default cursor-type 'bar)
+;; (setq-default cursor-type 'bar)
 (show-smartparens-global-mode t)
 ;; (setq sp-show-pair-delay 0)
 ;; (global-auto-highlight-symbol-mode t)
@@ -591,18 +596,26 @@
 ;;Real Autosave
 (add-hook 'text-mode-hook 'real-auto-save-mode)
 (add-hook 'prog-mode-hook 'real-auto-save-mode)
-(setq real-auto-save-interval 1) ;;Autosave every x seconds
+(setq real-auto-save-interval 0.1) ;;Autosave every x seconds
 (add-hook 'focus-out-hook (lambda () (save-some-buffers t))) ;;Save when switching buffers/selecting different app
 
 
 ;;Reload file if modified on disk
 (global-auto-revert-mode)
-(setq auto-revert-use-notify t)
+(setq auto-revert-use-notify nil)
+(setq auto-revert-interval 0.1)
 
 
 ;;Tabs'n'whitespace
 (setq-default indent-tabs-mode t)
 (setq-default tab-width 4)
+(add-hook 'csharp-mode-hook
+		  (lambda nil #1=(smart-tabs-mode-enable)
+			(smart-tabs-advice indent-for-tab-command c-basic-offset)
+			;; (Smart-tabs-advice c-indent-region c-basic-offset)
+			))
+(global-aggressive-indent-mode)
+;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 ;; (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 
 
@@ -614,9 +627,12 @@
 (setq company-frontends '(company-tng-frontend company-pseudo-tooltip-frontend))
 
 
-;GC
+;;GC
 (setq gc-cons-threshold (eval-when-compile (* 1024 1024 500)))
 (run-with-idle-timer 2 t (lambda () (garbage-collect)))
+
+
+(fset 'yes-or-no-p 'y-or-n-p)
 
 
 ;;C# stuff
@@ -627,7 +643,8 @@
  '(add-to-list 'company-backends 'company-omnisharp))
 (add-hook 'csharp-mode-hook #'company-mode)
 (add-hook 'csharp-mode-hook #'flycheck-mode)
-(setq flycheck-checker-error-threshold 1000)
+(setq omnisharp-company-do-template-completion nil)
+(setq flycheck-checker-error-threshold 10000)
 (setq omnisharp-expected-server-version "1.32.5")
 
 
@@ -652,4 +669,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
