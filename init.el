@@ -32,6 +32,7 @@
 (require 'odin-mode)
 (require 'flycheck-odin)
 (require 'smart-tabs-mode)
+(require 'redo+) ;Is under ~/Dotfiles/EmacsPlugins/redo+.el
 
 
 ;;Only use one instance (used with EmacsAsEditor.sh)
@@ -39,17 +40,19 @@
 
 
 ;;Keybinds
+(cua-mode)
+(setq cua-keep-region-after-copy t)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (defadvice mouse-set-point (before mouse-set-point-before activate) (deactivate-mark))
-(global-set-key (kbd "C-z") 'undo)
+(bind-key* "C-z" 'undo-modern)
+(define-key cua--cua-keys-keymap (kbd "C-z") 'undo-modern)
+(bind-key* "C-S-z" 'redo)
 ;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
 (define-key csharp-mode-map (kbd "C-c C-c") 'kill-ring-save) ;;Prevent csharp-mode from overriding kill-ring-save
 (global-set-key (kbd "RET") 'nav/csharp-newline)
 ;; (bind-key* "C-v" 'yank)
 (global-set-key (kbd "<backspace>") 'backward-delete-char)
-(cua-mode)
-(setq cua-keep-region-after-copy t)
 
 (defun no-copy-kill-whole-line ()
   "kill-whole-line without copying to kill ring"
@@ -455,7 +458,7 @@
 
   (global-set-key (kbd "e") (lambda () (interactive) (comment-line 1) (previous-line) (indent-for-tab-command)))
 
-  (global-set-key (kbd "z") 'undo)
+  (global-set-key (kbd "z") 'undo-modern)
   (global-set-key (kbd "g") (lambda () (interactive) (mc/keyboard-quit) (keyboard-quit)))
 
   (global-set-key (kbd "v") (lambda () (interactive) (yank) (indent-for-tab-command)))
