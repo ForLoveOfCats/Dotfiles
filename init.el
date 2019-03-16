@@ -33,6 +33,7 @@
 (require 'flycheck-odin)
 (require 'smart-tabs-mode)
 (require 'redo+) ;Is under ~/Dotfiles/EmacsPlugins/redo+.el
+(require 'rg)
 
 
 ;;Only use one instance (used with EmacsAsEditor.sh)
@@ -86,6 +87,13 @@
 (define-key company-active-map (kbd "RET") nil)
 
 ;; (global-set-key (kbd "C-=") 'er/expand-region)
+
+
+(defun rg-project ()
+  (interactive)
+  ;;default-directory
+  (rg (read-string "Enter query: ") "*" (projectile-project-root))
+  )
 
 (defun create-and-move-to-newline-below ()
   (interactive)
@@ -468,7 +476,7 @@
   (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (fzf)))
   ;; (global-set-key (kbd "S-p") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
   ;; (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-grep)))
-  (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (projectile-replace)))
+  (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (rg-project)))
   (global-set-key (kbd "f") (lambda () (interactive) (nav/disable) (omnisharp-helm-find-symbols)))
   (global-set-key (kbd "r") (lambda () (interactive) (nav/disable) (omnisharp-rename)))
   (global-set-key (kbd "y") 'omnisharp-go-to-definition)
@@ -672,4 +680,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
