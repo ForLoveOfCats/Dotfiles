@@ -34,6 +34,7 @@
 (require 'smart-tabs-mode)
 (require 'redo+) ;Is under ~/Dotfiles/EmacsPlugins/redo+.el
 (require 'rg)
+(require 'hl-todo)
 (require 'edit-server)
 
 
@@ -534,6 +535,10 @@
 (smartparens-global-mode 1)
 
 
+;;Highlight TODO
+(global-hl-todo-mode)
+
+
 ;;Text selection settings
 (transient-mark-mode 1) ;;Forces deselect when cursor move
 (delete-selection-mode 1)  ;;Start typing to overwrite selection
@@ -682,4 +687,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
