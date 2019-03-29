@@ -12,6 +12,7 @@
 (add-to-list 'load-path "~/Dotfiles/EmacsPlugins/")
 (package-initialize)
 
+(load "~/Dotfiles/EmacsPlugins/visws.el")
 
 ;;Require external packages
 (require 'projectile)
@@ -36,6 +37,7 @@
 (require 'rg)
 (require 'hl-todo)
 (require 'edit-server)
+(require 'doom-themes)
 
 
 ;;Only use one instance (used with EmacsAsEditor.sh)
@@ -539,6 +541,9 @@
 (global-hl-todo-mode)
 
 
+(visible-whitespace-mode t)
+
+
 ;;Text selection settings
 (transient-mark-mode 1) ;;Forces deselect when cursor move
 (delete-selection-mode 1)  ;;Start typing to overwrite selection
@@ -575,7 +580,8 @@
 (setq projectile-completion-system 'ivy)
 (global-git-gutter-mode +1)
 (tool-bar-mode -1)
-(load-theme 'atom-one-dark t)
+;; (load-theme 'atom-one-dark t)
+(load-theme 'doom-one t)
 (global-display-line-numbers-mode)
 (set-frame-font "Monospace 9" nil t)
 (setq isearch-allow-scroll t)
@@ -684,7 +690,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ahs-idle-interval 0)
+ '(custom-safe-themes
+   (quote
+	("adf5275cc3264f0a938d97ded007c82913906fc6cd64458eaae6853f6be287ce" default)))
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
