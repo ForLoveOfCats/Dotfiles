@@ -12,7 +12,8 @@
 (add-to-list 'load-path "~/Dotfiles/EmacsPlugins/")
 (package-initialize)
 
-(load "~/Dotfiles/EmacsPlugins/visws.el")
+;; (load "~/Dotfiles/EmacsPlugins/visws.el")
+(load "~/Dotfiles/EmacsPlugins/discord-emacs.el")
 
 ;;Require external packages
 (require 'projectile)
@@ -56,7 +57,8 @@
 ;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
 (define-key csharp-mode-map (kbd "C-c C-c") 'kill-ring-save) ;;Prevent csharp-mode from overriding kill-ring-save
-(global-set-key (kbd "RET") 'nav/csharp-newline)
+(define-key c-mode-map (kbd ";") nil) ;;Prevent csharp-mode from overriding kill-ring-save
+(global-set-key (kbd "RET") 'nav/newline)
 ;; (bind-key* "C-v" 'yank)
 (global-set-key (kbd "<backspace>") 'backward-delete-char)
 
@@ -160,8 +162,9 @@
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+(define-key global-map [escape] 'keyboard-quit) ;;Awwww yeah!
 
-;; (global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
+(global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
 
 (defun toggle-semicolon ()
   (interactive)
@@ -357,16 +360,17 @@
   (deactivate-mark)
   )
 
-(defun nav/csharp-newline ()
+(defun nav/newline ()
   (interactive)
-  (if (equal major-mode 'csharp-mode)
+  (if (or (equal major-mode 'csharp-mode) (equal major-mode 'c-mode))
 	  (progn
 		(if (and (= (char-before) ?{) (= (char-after) ?}))
 			(progn
 			  (newline)
-			  ;; (indent-for-tab-command)
+			  (indent-for-tab-command)
 			  (previous-line)
 			  (create-and-move-to-newline-below)
+			  (indent-for-tab-command)
 			  )
 		  (newline)
 		  )
@@ -380,7 +384,7 @@
   (interactive)
   (if (= (length (window-list)) 1)
 	  (kill-buffer (current-buffer))
-	(delete-window))
+	(kill-buffer-and-window))
   )
 
 (defun nav/toggle-selection ()
@@ -417,6 +421,27 @@
 	(indent-for-tab-command)
 	)
   )
+
+
+(defun is-mode-active (mode)
+  ;; (message "%s" (--filter (and (boundp it) (symbol-value it)) minor-mode-list))
+  (member mode (--filter (and (boundp it) (symbol-value it)) minor-mode-list))
+  )
+
+
+(defun nav/goto-def ()
+  (interactive)
+  ;; (xref-find-definitions)
+  (if (derived-mode-p 'csharp-mode)
+	  (omnisharp-go-to-definition)
+	;; (if (is-mode-active 'eglot--managed-mode)
+	;; (xref-find-definitions)
+	;; (xref-find-definitions (symbol-at-point))
+	;; )
+	(call-interactively 'xref-find-definitions)
+	)
+  )
+
 
 (defun nav/enable ()
   (interactive)
@@ -463,7 +488,7 @@
 
   (global-set-key (kbd "t") 'highlight-then-select-next)
 
-  (global-set-key (kbd "RET") 'nav/csharp-newline)
+  (global-set-key (kbd "RET") 'nav/newline)
   (global-set-key (kbd "n") 'create-and-move-to-newline-below)
   (global-set-key (kbd "SPC") 'self-insert-command)
   (global-set-key (kbd "<tab>") 'nav/smart-tab)
@@ -478,13 +503,13 @@
   (global-set-key (kbd "c") 'kill-ring-save)
 
   (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
-  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (fzf)))
+  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (fzf-git-files)))
   ;; (global-set-key (kbd "S-p") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
   ;; (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-grep)))
   (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (rg-project)))
   (global-set-key (kbd "f") (lambda () (interactive) (nav/disable) (omnisharp-helm-find-symbols)))
   (global-set-key (kbd "r") (lambda () (interactive) (nav/disable) (omnisharp-rename)))
-  (global-set-key (kbd "y") 'omnisharp-go-to-definition)
+  (global-set-key (kbd "y") 'nav/goto-def)
   (global-set-key (kbd "u") 'omnisharp-helm-find-usages)
   (global-set-key (kbd "j") 'helm-execute-persistent-action)
 
@@ -497,6 +522,8 @@
 
   (global-set-key (kbd "b") (lambda () (interactive) (nav/disable) (helm-buffers-list)))
   (global-set-key (kbd "q") 'nav/kill-buffer-or-window)
+
+  (global-set-key [escape] 'keyboard-quit) ;;Awwww yeah!
   )
 
 (defun nav/disable ()
@@ -541,7 +568,7 @@
 (global-hl-todo-mode)
 
 
-(visible-whitespace-mode t)
+;; (visible-whitespace-mode t)
 
 
 ;;Text selection settings
@@ -573,6 +600,9 @@
 (setq helm-flx-for-helm-locate t)
 
 
+;;Discord rich presence
+(discord-emacs-run "472881182770724874")
+
 ;;GUI stuff
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 (setq initial-buffer-choice t)
@@ -580,7 +610,6 @@
 (setq projectile-completion-system 'ivy)
 (global-git-gutter-mode +1)
 (tool-bar-mode -1)
-;; (load-theme 'atom-one-dark t)
 (load-theme 'doom-one t)
 (global-display-line-numbers-mode)
 (set-frame-font "Monospace 9" nil t)
@@ -611,6 +640,9 @@
   (if (eq this-command 'eval-expression)
 	  (company-mode)))
 
+(which-key-mode)
+(setq which-key-idle-delay 0.1)
+
 
 ;;Disable Autosave junk
 (setq auto-save-default nil)
@@ -638,7 +670,15 @@
 			(smart-tabs-advice indent-for-tab-command c-basic-offset)
 			;; (Smart-tabs-advice c-indent-region c-basic-offset)
 			))
-(global-aggressive-indent-mode)
+;; (setq c-default-style "linux"
+;; c-basic-offset 4)
+;; (c-set-offset 'case-label '+)
+(add-hook 'c-mode-hook
+		  (lambda nil #1=(smart-tabs-mode-enable)
+			(smart-tabs-advice indent-for-tab-command c-basic-offset)
+			;; (Smart-tabs-advice c-indent-region c-basic-offset)
+			))
+;; (global-aggressive-indent-mode)
 ;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 ;; (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
 
@@ -661,7 +701,7 @@
 
 ;;C# stuff
 (add-hook 'csharp-mode-hook 'omnisharp-mode)
-;; (setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32.1/run")
+(setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32.18/run")
 (eval-after-load
  'company
  '(add-to-list 'company-backends 'company-omnisharp))
@@ -669,7 +709,7 @@
 (add-hook 'csharp-mode-hook #'flycheck-mode)
 (setq omnisharp-company-do-template-completion nil)
 (setq flycheck-checker-error-threshold 10000)
-(setq omnisharp-expected-server-version "1.32.5")
+;;(setq omnisharp-expected-server-version "1.32.5")
 
 
 (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-odin-setup))
@@ -690,10 +730,15 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ahs-idle-interval 0)
+ '(company-backends
+   (quote
+	(company-omnisharp company-bbdb company-eclim company-semantic company-xcode company-cmake company-capf company-files
+					   (company-dabbrev-code company-gtags company-etags company-keywords)
+					   company-oddmuse company-dabbrev)))
  '(custom-safe-themes
    (quote
-	("adf5275cc3264f0a938d97ded007c82913906fc6cd64458eaae6853f6be287ce" default)))
+	("49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "adf5275cc3264f0a938d97ded007c82913906fc6cd64458eaae6853f6be287ce" default)))
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
