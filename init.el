@@ -154,15 +154,15 @@
   "Abort recursive edit."
   (interactive)
   (if (and delete-selection-mode transient-mark-mode mark-active)
-      (setq deactivate-mark t)
-    (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
-    (abort-recursive-edit)))
+	  (setq deactivate-mark t)
+	(when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
+	(abort-recursive-edit)))
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-(define-key global-map [escape] 'keyboard-quit) ;;Awwww yeah!
+(define-key global-map [escape] (lambda () (interactive) (if (active-minibuffer-window) (minibuffer-keyboard-quit)) (keyboard-quit))) ;;Awwww yeah!
 
 (global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
 
@@ -523,7 +523,7 @@
   (global-set-key (kbd "b") (lambda () (interactive) (nav/disable) (helm-buffers-list)))
   (global-set-key (kbd "q") 'nav/kill-buffer-or-window)
 
-  (global-set-key [escape] 'keyboard-quit) ;;Awwww yeah!
+  (global-set-key [escape] (lambda () (interactive) (if (active-minibuffer-window) (minibuffer-keyboard-quit)) (keyboard-quit))) ;;Awwww yeah!
   )
 
 (defun nav/disable ()
