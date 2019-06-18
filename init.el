@@ -39,6 +39,7 @@
 (require 'hl-todo)
 (require 'edit-server)
 (require 'doom-themes)
+(require 'ccls)
 
 
 ;;Only use one instance (used with EmacsAsEditor.sh)
@@ -54,6 +55,9 @@
 (bind-key* "C-z" 'undo-modern)
 (define-key cua--cua-keys-keymap (kbd "C-z") 'undo-modern)
 (bind-key* "C-S-z" 'redo)
+
+(bind-key* "<f5>" (lambda () (interactive) (projectile-compile-project "sh ./Debug.sh")))
+
 ;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
 (define-key csharp-mode-map (kbd "C-c C-c") 'kill-ring-save) ;;Prevent csharp-mode from overriding kill-ring-save
@@ -87,8 +91,8 @@
 
 (global-set-key (kbd "M-<backspace>") 'pop-global-mark)
 
-(define-key company-active-map (kbd "<tab>") 'company-complete-common)
-(define-key company-active-map (kbd "TAB") 'company-complete-common)
+(define-key company-active-map (kbd "<tab>") 'company-complete-common-or-cycle)
+(define-key company-active-map (kbd "TAB") 'company-complete-common-or-cycle)
 
 (define-key company-active-map (kbd "<return>") nil)
 (define-key company-active-map (kbd "RET") nil)
@@ -612,6 +616,7 @@
 (tool-bar-mode -1)
 (load-theme 'doom-one t)
 (global-display-line-numbers-mode)
+(column-number-mode t)
 (set-frame-font "Monospace 9" nil t)
 (setq isearch-allow-scroll t)
 (require 'ido)
@@ -640,8 +645,8 @@
   (if (eq this-command 'eval-expression)
 	  (company-mode)))
 
-(which-key-mode)
-(setq which-key-idle-delay 0.1)
+;; (which-key-mode)
+;; (setq which-key-idle-delay 0.1)
 
 
 ;;Disable Autosave junk
@@ -675,8 +680,8 @@
 ;; (c-set-offset 'case-label '+)
 (add-hook 'c-mode-hook
 		  (lambda nil #1=(smart-tabs-mode-enable)
-			(smart-tabs-advice indent-for-tab-command c-basic-offset)
-			;; (Smart-tabs-advice c-indent-region c-basic-offset)
+			;; (smart-tabs-advice indent-for-tab-command c-basic-offset)
+			(smart-tabs-advice c-indent-region c-basic-offset)
 			))
 ;; (global-aggressive-indent-mode)
 ;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -689,6 +694,7 @@
 (setq company-minimum-prefix-length 1)
 (setq company-require-match 'never)
 (setq company-frontends '(company-tng-frontend company-pseudo-tooltip-frontend))
+(setq company-lsp-enable-snippet nil)
 
 
 ;;GC
@@ -697,11 +703,12 @@
 
 
 (fset 'yes-or-no-p 'y-or-n-p)
+(setq confirm-kill-processes nil)
 
 
 ;;C# stuff
 (add-hook 'csharp-mode-hook 'omnisharp-mode)
-(setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32.18/run")
+(setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32.19/run")
 (eval-after-load
  'company
  '(add-to-list 'company-backends 'company-omnisharp))
@@ -713,6 +720,27 @@
 
 
 (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-odin-setup))
+
+
+(setq ccls-initialization-options '(:completion (:detailedLabel :json-false)))
+(setq lsp-enable-snippet nil)
+(defun restart-lsp ()
+  (if (bound-and-true-p lsp-mode)
+	  (progn
+		(lsp-restart-workspace)
+		)
+	)
+  ;; (run-with-idle-timer 1 nil 'restart-lsp)
+  )
+(run-with-idle-timer 1 t 'restart-lsp)
+
+(add-hook 'c-mode-hook (lambda ()
+						 (lsp-mode)
+						 (lsp-ui-mode)
+						 (lsp)
+						 (setq lsp-document-highlight-delay nil)
+						 ))
+
 
 
 ;;Automatic stuff
@@ -734,11 +762,11 @@
    (quote
 	(company-omnisharp company-bbdb company-eclim company-semantic company-xcode company-cmake company-capf company-files
 					   (company-dabbrev-code company-gtags company-etags company-keywords)
-					   company-oddmuse company-dabbrev)))
+					   company-oddmuse company-dabbrev company-lsp)))
  '(custom-safe-themes
    (quote
 	("49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "adf5275cc3264f0a938d97ded007c82913906fc6cd64458eaae6853f6be287ce" default)))
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
