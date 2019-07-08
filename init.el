@@ -40,6 +40,7 @@
 (require 'edit-server)
 (require 'doom-themes)
 (require 'ccls)
+(require 'beacon)
 
 
 ;;Only use one instance (used with EmacsAsEditor.sh)
@@ -618,6 +619,7 @@
 (global-display-line-numbers-mode)
 (column-number-mode t)
 (set-frame-font "Monospace 9" nil t)
+(beacon-mode 1)
 (setq isearch-allow-scroll t)
 (require 'ido)
 ;; (ido-mode t)
@@ -638,6 +640,7 @@
 (set-face-background 'mode-line "green")
 (setq-default show-trailing-whitespace t)
 (global-hl-line-mode)
+(setq fill-column 80)
 
 (add-hook 'minibuffer-setup-hook 'eval-minibuffer-company)
 (defun eval-minibuffer-company ()
@@ -694,6 +697,8 @@
 (setq company-minimum-prefix-length 1)
 (setq company-require-match 'never)
 (setq company-frontends '(company-tng-frontend company-pseudo-tooltip-frontend))
+(require 'company-lsp)
+(push 'company-lsp company-backends)
 (setq company-lsp-enable-snippet nil)
 
 
@@ -722,6 +727,8 @@
 (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-odin-setup))
 
 
+(require 'lsp)
+(require 'lsp-clients)
 (setq ccls-initialization-options '(:completion (:detailedLabel :json-false)))
 (setq lsp-enable-snippet nil)
 (defun restart-lsp ()
@@ -734,11 +741,14 @@
   )
 (run-with-idle-timer 1 t 'restart-lsp)
 
+(setq lsp--auto-configure nil)
 (add-hook 'c-mode-hook (lambda ()
-						 (lsp-mode)
-						 (lsp-ui-mode)
 						 (lsp)
+						 (flycheck-mode)
 						 (setq lsp-document-highlight-delay nil)
+
+						 (make-local-variable 'company-backends)
+						 (setq company-backends (append (list 'company-lsp) company-backends))
 						 ))
 
 
@@ -769,4 +779,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
