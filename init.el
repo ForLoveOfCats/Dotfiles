@@ -671,6 +671,8 @@
 
 
 ;;Tabs'n'whitespace
+(electric-indent-mode -1)
+(add-hook 'after-change-major-mode-hook (lambda() (electric-indent-mode -1)))
 (setq-default indent-tabs-mode t)
 (setq-default tab-width 4)
 (add-hook 'csharp-mode-hook
