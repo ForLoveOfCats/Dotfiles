@@ -733,6 +733,7 @@
 (require 'lsp-clients)
 (setq ccls-initialization-options '(:completion (:detailedLabel :json-false)))
 (setq lsp-enable-snippet nil)
+(setq lsp-enable-on-type-formatting nil)
 (defun restart-lsp ()
   (if (bound-and-true-p lsp-mode)
 	  (progn
