@@ -715,7 +715,7 @@
 
 ;;C# stuff
 (add-hook 'csharp-mode-hook 'omnisharp-mode)
-(setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.32.19/run")
+(setq omnisharp-server-executable-path "~/.emacs.d/.cache/omnisharp/server/v1.34.0/run")
 (eval-after-load
  'company
  '(add-to-list 'company-backends 'company-omnisharp))
