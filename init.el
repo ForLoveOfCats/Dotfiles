@@ -41,6 +41,7 @@
 (require 'doom-themes)
 (require 'ccls)
 (require 'beacon)
+(require 'rainbow-delimiters)
 
 
 ;;Only use one instance (used with EmacsAsEditor.sh)
@@ -611,6 +612,7 @@
 ;;GUI stuff
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 (setq initial-buffer-choice t)
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (projectile-mode +1)
 (setq projectile-completion-system 'ivy)
 (global-git-gutter-mode +1)
@@ -782,4 +784,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(rainbow-delimiters beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
