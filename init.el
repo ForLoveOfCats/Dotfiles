@@ -172,6 +172,15 @@
 
 (global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
 
+
+(add-hook 'prog-mode-hook 'hs-minor-mode)
+(defun nav/toggle-fold ()
+  (interactive)
+  (save-excursion
+    (end-of-line)
+    (hs-toggle-hiding)))
+
+
 (defun toggle-semicolon ()
   (interactive)
   (save-excursion
@@ -485,7 +494,9 @@
   (global-set-key (kbd "]") 'nav/right-word)
   (global-set-key (kbd "[") 'nav/left-word)
 
-  (global-set-key (kbd "h") 'describe-key)
+  (global-set-key (kbd "h") 'nav/toggle-fold)
+  (global-set-key (kbd "H") 'hs-show-all)
+  (global-set-key (kbd "C-H") 'hs-hide-all)
 
   (global-set-key (kbd "l") (lambda () (interactive) (let ((old-pos (point))) (beginning-of-line) (kill-line) (yank) (goto-char old-pos))))
 
@@ -784,4 +795,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(rainbow-delimiters beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(fish-mode rainbow-delimiters beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
