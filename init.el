@@ -240,7 +240,8 @@
   )
 
 (defun nav/char-is-word (char)
-  (if (or (= char ?\s) (= char ?\t) (= char ?\n) (= char ?-) (= char ?_) (= char ?() (= char ?)) (= char ?{) (= char ?}) (= char ?\;) (= char ?/) (= char ?\") (= char ?\\) (= char ?.) (= char ?,))
+  ;;Yes this line is horrible. Yes it could be done in a more lisp-y way. Do I care? Not right now
+  (if (or (= char ?\s) (= char ?\t) (= char ?\n) (= char ?-) (= char ?_) (= char ?\() (= char ?\)) (= char ?{) (= char ?}) (= char ?\;) (= char ?/) (= char ?\") (= char ?\\) (= char ?.) (= char ?,))
 	  t
 	nil)
   )
