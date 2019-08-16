@@ -1,5 +1,6 @@
 ;;Setup packages
 (require 'package)
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3") ;;Work around SSL bug preventing access to GNU packages
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
                     (not (gnutls-available-p))))
        (proto (if no-ssl "http" "https")))
@@ -624,6 +625,7 @@
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 (setq initial-buffer-choice t)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+(setq projectile-git-submodule-command nil) ;;Prevent missing directory error when opening a project
 (projectile-mode +1)
 (setq projectile-completion-system 'ivy)
 (global-git-gutter-mode +1)
