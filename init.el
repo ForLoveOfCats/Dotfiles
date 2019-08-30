@@ -36,6 +36,7 @@
 (require 'flycheck-odin)
 (require 'smart-tabs-mode)
 (require 'redo+) ;Is under ~/Dotfiles/EmacsPlugins/redo+.el
+(require 'fast-scroll) ;Is under ~/Dotfiles/EmacsPlugins/fast-scroll.el
 (require 'rg)
 (require 'hl-todo)
 (require 'edit-server)
@@ -577,6 +578,14 @@
 ;; scroll-conservatively 10000
 ;; scroll-preserve-screen-position 1)
 (setq scroll-step 1)
+
+
+(fast-scroll-config)
+(fast-scroll-advice-scroll-functions)
+(advice-add #'mwheel-scroll :around #'fast-scroll-run-fn-minimally)
+(advice-add #'scroll-bar-toolkit-scroll :around #'fast-scroll-run-fn-minimally)
+(setq fast-scroll-throttle 0.35)
+(fast-scroll-minor-mode 1)
 
 
 ;;Parenthesis autocompletion and removal
