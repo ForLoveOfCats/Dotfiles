@@ -87,7 +87,7 @@
    (progn
      (backward-word)
      (point))))
-;; (global-set-key (kbd "C-<backspace>") 'no-copy-kill-to-word)
+(global-set-key (kbd "C-<backspace>") 'no-copy-kill-to-word)
 
 (define-key projectile-mode-map (kbd "M-p") 'projectile-command-map)
 
@@ -523,7 +523,7 @@
   (global-set-key (kbd "c") 'kill-ring-save)
 
   (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
-  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (fzf-git-files)))
+  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (fzf-git)))
   ;; (global-set-key (kbd "S-p") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
   ;; (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-grep)))
   (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (rg-project)))
@@ -590,6 +590,7 @@
 
 ;;Parenthesis autocompletion and removal
 (smartparens-global-mode 1)
+(setq sp-escape-quotes-after-insert nil)
 
 
 ;;Highlight TODO
@@ -758,6 +759,7 @@
 (setq ccls-initialization-options '(:completion (:detailedLabel :json-false)))
 (setq lsp-enable-snippet nil)
 (setq lsp-enable-on-type-formatting nil)
+(setq lsp-enable-indentation nil)
 (defun restart-lsp ()
   (if (bound-and-true-p lsp-mode)
 	  (progn
