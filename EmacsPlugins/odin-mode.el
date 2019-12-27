@@ -1,8 +1,20 @@
-;; odin-mode.el - A minor mode for odin
+;;; odin-mode.el --- A minor mode for odin
+
+;; Author: Ethan Morgan
+;; Keywords: odin, language, languages, mode
+;; Package-Requires: ((emacs "24.1"))
+;; Homepage: https://github.com/glassofethanol/odin-mode
+
+;; This file is NOT part of GNU Emacs.
+
+;;; Code:
 
 (require 'cl)
 (require 'rx)
 (require 'js)
+
+(defgroup odin nil
+  "Odin mode")
 
 (defconst odin-mode-syntax-table
   (let ((table (make-syntax-table)))
@@ -10,20 +22,21 @@
     (modify-syntax-entry ?\\ "\\" table)
 
     ;; additional symbols
-    (modify-syntax-entry ?' "." table)
+    (modify-syntax-entry ?' "\"" table)
+    (modify-syntax-entry ?` "\"" table)
     (modify-syntax-entry ?: "." table)
-    (modify-syntax-entry ?+  "." table)
-    (modify-syntax-entry ?-  "." table)
-    (modify-syntax-entry ?%  "." table)
-    (modify-syntax-entry ?&  "." table)
-    (modify-syntax-entry ?|  "." table)
-    (modify-syntax-entry ?^  "." table)
-    (modify-syntax-entry ?!  "." table)
-    (modify-syntax-entry ?$  "/" table)
-    (modify-syntax-entry ?=  "." table)
-    (modify-syntax-entry ?<  "." table)
-    (modify-syntax-entry ?>  "." table)
-    (modify-syntax-entry ??  "." table)
+    (modify-syntax-entry ?+ "." table)
+    (modify-syntax-entry ?- "." table)
+    (modify-syntax-entry ?% "." table)
+    (modify-syntax-entry ?& "." table)
+    (modify-syntax-entry ?| "." table)
+    (modify-syntax-entry ?^ "." table)
+    (modify-syntax-entry ?! "." table)
+    (modify-syntax-entry ?$ "." table)
+    (modify-syntax-entry ?= "." table)
+    (modify-syntax-entry ?< "." table)
+    (modify-syntax-entry ?> "." table)
+    (modify-syntax-entry ?? "." table)
 
     ;; Need this for #directive regexes to work correctly
     (modify-syntax-entry ?#   "_" table)
@@ -39,7 +52,8 @@
 (defconst odin-builtins
   '("len" "cap"
     "typeid_of" "type_info_of"
-    "swizzle" "complex" "real" "imag" "conj"
+    "swizzle" "complex" "real" "imag" "quaternion" "conj"
+    "jmag" "kmag"
     "min" "max" "abs" "clamp"
     "expand_to_tuple"
 
@@ -53,18 +67,19 @@
     "assert" "panic" "unimplemented" "unreachable"))
 
 (defconst odin-keywords
-  '("import" "export" "foreign" "package"
-    "when" "if" "else" "for" "switch" "in" "notin" "do" "case"
-    "break" "continue" "fallhrough" "defer" "return" "proc"
-    "struct" "union" "enum" "bit_field" "bit_set" "map" "static" "dynamic"
+  '("import" "foreign" "package"
+    "where" "when" "if" "else" "for" "switch" "in" "notin" "do" "case"
+    "break" "continue" "fallthrough" "defer" "return" "proc"
+    "struct" "union" "enum" "bit_field" "bit_set" "map" "dynamic"
     "auto_cast" "cast" "transmute" "distinct" "opaque"
     "using" "inline" "no_inline"
     "size_of" "align_of" "offset_of" "type_of"
-    ;; "_" "context"
+
+    "context"
+    ;; "_"
 
     ;; Reserved
-    "macro" "asm" "yield" "await"
-    "const"))
+    "macro" "const"))
 
 (defconst odin-constants
   '("nil" "true" "false"
@@ -77,6 +92,9 @@
     "int"  "i8" "i16" "i32" "i64"
     "i16le" "i32le" "i64le"
     "i16be" "i32be" "i64be"
+    "i128" "u128"
+    "i128le" "u128le"
+    "i128be" "u128be"
 
     "uint" "u8" "u16" "u32" "u64"
     "u16le" "u32le" "u64le"
@@ -84,6 +102,8 @@
 
     "f32" "f64"
     "complex64" "complex128"
+
+    "quaternion128" "quaternion256"
 
     "rune"
     "string" "cstring"
@@ -94,33 +114,41 @@
 
 (defconst odin-attributes
   '("builtin"
+    "export"
+    "static"
     "deferred_in" "deferred_none" "deferred_out"
+    "require_results"
     "default_calling_convention" "link_name" "link_prefix"
     "deprecated" "private" "thread_local"))
 
 (defconst odin-directives
   '("#align" "#packed"
     "#raw_union"
+    "#no_nil"
+    "#complete"
     "#no_alias" "#type"
     "#c_vararg"
     "#assert"
     "#caller_location" "#file" "#line" "#location" "#procedure"
+    "#load"
     "#defined"
-    "#require_results"
     "#bounds_check" "#no_bounds_check"))
 
 (defun odin-wrap-word-rx (s)
   (concat "\\<" s "\\>"))
 
+(defun odin-wrap-keyword-rx (s)
+  (concat "\\(?:\\S.\\_<\\|\\`\\)" s "\\_>"))
+
 (defun odin-wrap-directive-rx (s)
   (concat "\\_<" s "\\>"))
 
 (defun odin-wrap-attribute-rx (s)
-  (concat "[[:space:]\n]*@[[:space:]\n]*([[:space:]\n]*" s "\\>"))
+  (concat "[[:space:]\n]*@[[:space:]\n]*(?[[:space:]\n]*" s "\\>"))
 
 (defun odin-keywords-rx (keywords)
- "build keyword regexp"
-  (odin-wrap-word-rx (regexp-opt keywords t)))
+  "build keyword regexp"
+  (odin-wrap-keyword-rx (regexp-opt keywords t)))
 
 (defun odin-directives-rx (directives)
   (odin-wrap-directive-rx (regexp-opt directives t)))
@@ -128,8 +156,8 @@
 (defun odin-attributes-rx (attributes)
   (odin-wrap-attribute-rx (regexp-opt attributes t)))
 
-(defconst odin-hat-type-rx (rx (group (and "^" (1+ (any word "."))))))
-(defconst odin-dollar-type-rx (rx (group "$" (or (1+ word) (opt "$")))))
+(defconst odin-hat-type-rx (rx (group (and "^" (1+ (any word "." "_"))))))
+(defconst odin-dollar-type-rx (rx (group "$" (or (1+ (any word "_")) (opt "$")))))
 (defconst odin-number-rx
   (rx (and
        symbol-start
@@ -140,6 +168,11 @@
 
 (defconst odin-font-lock-defaults
   `(
+    ;; Types
+    (,odin-hat-type-rx 1 font-lock-type-face)
+    (,odin-dollar-type-rx 1 font-lock-type-face)
+    (,(odin-keywords-rx odin-typenames) 1 font-lock-type-face)
+
     ;; Hash directives
     (,(odin-directives-rx odin-directives) 1 font-lock-preprocessor-face)
 
@@ -150,7 +183,7 @@
     (,(odin-keywords-rx odin-keywords) 1 font-lock-keyword-face)
 
     ;; single quote characters
-    ("\\('[[:word:]]\\)\\>" 1 font-lock-constant-face)
+    ("'\\(\\\\.\\|[^']\\)'" . font-lock-constant-face)
 
     ;; Variables
     (,(odin-keywords-rx odin-builtins) 1 font-lock-variable-name-face)
@@ -159,17 +192,13 @@
     (,(odin-keywords-rx odin-constants) 1 font-lock-constant-face)
 
     ;; Strings
-    ("\\\".*\\\"" . font-lock-string-face)
+    ;; ("\\\".*\\\"" . font-lock-string-face)
 
     ;; Numbers
     (,(odin-wrap-word-rx odin-number-rx) . font-lock-constant-face)
 
-    ;; Types
-    (,odin-hat-type-rx 1 font-lock-type-face)
-    (,odin-dollar-type-rx 1 font-lock-type-face)
-    (,(odin-keywords-rx odin-typenames) 1 font-lock-type-face)
-
     ("---" . font-lock-constant-face)
+    ("\\.\\.<" . font-lock-constant-face)
     ("\\.\\." . font-lock-constant-face)
     ))
 
@@ -240,6 +269,8 @@
   (setq-local font-lock-defaults '(odin-font-lock-defaults))
   (setq-local beginning-of-defun-function 'odin-beginning-of-defun)
   (setq-local end-of-defun-function 'odin-end-of-defun)
+  (setq-local electric-indent-chars
+              (append "{}():;," electric-indent-chars))
 
   (font-lock-fontify-buffer))
 

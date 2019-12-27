@@ -22,4 +22,5 @@
 		mouse-set-region
 		nav/toggle
 		omnisharp-go-to-definition
+		overwrite-mode
 		))

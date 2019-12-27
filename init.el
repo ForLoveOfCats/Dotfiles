@@ -1,3 +1,6 @@
+(setq debug-on-error nil)
+
+
 ;;Setup packages
 (require 'package)
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3") ;;Work around SSL bug preventing access to GNU packages
@@ -28,20 +31,23 @@
 (require 'bind-key)
 (require 'helm)
 (require 'ivy)
+(require 'smex)
 ;; (require 'helm-projectile)
 (require 'highlight-indent-guides)
 (require 'loop)
 (require 'auto-highlight-symbol)
 (require 'odin-mode)
 (require 'flycheck-odin)
-(require 'smart-tabs-mode)
+;; (require 'smart-tabs-mode)
 (require 'redo+) ;Is under ~/Dotfiles/EmacsPlugins/redo+.el
 (require 'fast-scroll) ;Is under ~/Dotfiles/EmacsPlugins/fast-scroll.el
 (require 'rg)
+(require 'deadgrep)
 (require 'hl-todo)
 (require 'edit-server)
-(require 'doom-themes)
-(require 'ccls)
+;; (require 'doom-themes)
+(require 'solarized)
+;; (require 'ccls)
 (require 'beacon)
 (require 'rainbow-delimiters)
 
@@ -54,13 +60,16 @@
 ;;Keybinds
 (cua-mode)
 (setq cua-keep-region-after-copy t)
-(global-set-key (kbd "M-x") 'helm-M-x)
+;; (global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "M-x") 'smex)
 (defadvice mouse-set-point (before mouse-set-point-before activate) (deactivate-mark))
 (bind-key* "C-z" 'undo-modern)
 (define-key cua--cua-keys-keymap (kbd "C-z") 'undo-modern)
 (bind-key* "C-S-z" 'redo)
 
 (bind-key* "<f5>" (lambda () (interactive) (projectile-compile-project "sh ./Debug.sh")))
+
+(bind-key* "C-c h" (lambda () (interactive) (call-interactively 'global-auto-highlight-symbol-mode)))
 
 ;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
@@ -104,10 +113,9 @@
 ;; (global-set-key (kbd "C-=") 'er/expand-region)
 
 
-(defun rg-project ()
+(defun nav/rg-project ()
   (interactive)
-  ;;default-directory
-  (rg (read-string "Enter query: ") "*" (projectile-project-root))
+  (rg-run (read-string "Enter query: ") "*" (projectile-project-root))
   )
 
 (defun create-and-move-to-newline-below ()
@@ -380,7 +388,7 @@
 
 (defun nav/newline ()
   (interactive)
-  (if (or (equal major-mode 'csharp-mode) (equal major-mode 'c-mode))
+  (if (or (equal major-mode 'csharp-mode) (equal major-mode 'c-mode) (equal major-mode 'c++-mode))
 	  (progn
 		(if (and (= (char-before) ?{) (= (char-after) ?}))
 			(progn
@@ -523,10 +531,10 @@
   (global-set-key (kbd "c") 'kill-ring-save)
 
   (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
-  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (fzf-git)))
+  (global-set-key (kbd "p") (lambda () (interactive) (nav/disable) (projectile-find-file)))
   ;; (global-set-key (kbd "S-p") (lambda () (interactive) (nav/disable) (projectile-switch-project)))
   ;; (global-set-key (kbd "o") (lambda () (interactive) (nav/disable) (projectile-grep)))
-  (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (rg-project)))
+  (global-set-key (kbd "i") (lambda () (interactive) (nav/disable) (nav/rg-project)))
   (global-set-key (kbd "f") (lambda () (interactive) (nav/disable) (omnisharp-helm-find-symbols)))
   (global-set-key (kbd "r") (lambda () (interactive) (nav/disable) (omnisharp-rename)))
   (global-set-key (kbd "y") 'nav/goto-def)
@@ -540,7 +548,7 @@
   (global-set-key (kbd "k") 'nav/kill-line-or-lines)
   (global-set-key (kbd "x") 'my/kill-word-at-point)
 
-  (global-set-key (kbd "b") (lambda () (interactive) (nav/disable) (helm-buffers-list)))
+  (global-set-key (kbd "b") (lambda () (interactive) (nav/disable) (ido-switch-buffer))) ;(helm-buffers-list)))
   (global-set-key (kbd "q") 'nav/kill-buffer-or-window)
 
   (global-set-key [escape] (lambda () (interactive) (if (active-minibuffer-window) (minibuffer-keyboard-quit)) (keyboard-quit))) ;;Awwww yeah!
@@ -638,13 +646,17 @@
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (setq projectile-git-submodule-command nil) ;;Prevent missing directory error when opening a project
 (projectile-mode +1)
-(setq projectile-completion-system 'ivy)
+(setq projectile-completion-system 'ido)
+(setq projectile-indexing-method 'alien)
+;; (setq projectile-enable-caching t)
 (global-git-gutter-mode +1)
 (tool-bar-mode -1)
-(load-theme 'doom-one t)
+;; (load-theme 'doom-one t)
+(load-theme 'solarized-dark t)
+(set-cursor-color "#00FF7F")
 (global-display-line-numbers-mode)
 (column-number-mode t)
-(set-frame-font "Monospace 9" nil t)
+(set-frame-font "Monospace 10" nil t)
 (beacon-mode 1)
 (setq isearch-allow-scroll t)
 (require 'ido)
@@ -701,19 +713,20 @@
 (add-hook 'after-change-major-mode-hook (lambda() (electric-indent-mode -1)))
 (setq-default indent-tabs-mode t)
 (setq-default tab-width 4)
-(add-hook 'csharp-mode-hook
-		  (lambda nil #1=(smart-tabs-mode-enable)
-			(smart-tabs-advice indent-for-tab-command c-basic-offset)
-			;; (Smart-tabs-advice c-indent-region c-basic-offset)
-			))
+;; (add-hook 'csharp-mode-hook
+;; (lambda nil #1=(smart-tabs-mode-enable)
+;; (smart-tabs-advice indent-for-tab-command c-basic-offset)
+;; (Smart-tabs-advice c-indent-region c-basic-offset)
+;; ))
 ;; (setq c-default-style "linux"
-;; c-basic-offset 4)
-;; (c-set-offset 'case-label '+)
-(add-hook 'c-mode-hook
-		  (lambda nil #1=(smart-tabs-mode-enable)
-			;; (smart-tabs-advice indent-for-tab-command c-basic-offset)
-			(smart-tabs-advice c-indent-region c-basic-offset)
-			))
+(setq c-default-style "bsd"
+	  c-basic-offset 4)
+(c-set-offset 'arglist-close '0)
+;; (add-hook 'c-mode-hook
+;; (lambda nil #1=(smart-tabs-mode-enable)
+;; (smart-tabs-advice indent-for-tab-command c-basic-offset)
+;; (smart-tabs-advice c-indent-region c-basic-offset)
+;; ))
 ;; (global-aggressive-indent-mode)
 ;; (add-hook 'before-save-hook 'delete-trailing-whitespace)
 ;; (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
@@ -728,10 +741,11 @@
 (require 'company-lsp)
 (push 'company-lsp company-backends)
 (setq company-lsp-enable-snippet nil)
+(setq company-dabbrev-downcase nil)
 
 
 ;;GC
-(setq gc-cons-threshold (eval-when-compile (* 1024 1024 500)))
+(setq gc-cons-threshold (eval-when-compile (* 1024 1024 800)))
 (run-with-idle-timer 2 t (lambda () (garbage-collect)))
 
 
@@ -751,12 +765,18 @@
 ;;(setq omnisharp-expected-server-version "1.32.5")
 
 
+(setq nimsuggest-path "/usr/bin/nimsuggest")
+(add-hook 'nim-mode-hook (lambda ()
+						   (when (string-match "/\.nimble/" buffer-file-name) (read-only-mode 1))
+						   (flycheck-mode 1)))
+
+
 (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-odin-setup))
 
 
 (require 'lsp)
 (require 'lsp-clients)
-(setq ccls-initialization-options '(:completion (:detailedLabel :json-false)))
+;; (setq ccls-initialization-options '(:completion (:detailedLabel :json-false)))
 (setq lsp-enable-snippet nil)
 (setq lsp-enable-on-type-formatting nil)
 (setq lsp-enable-indentation nil)
@@ -768,17 +788,33 @@
 	)
   ;; (run-with-idle-timer 1 nil 'restart-lsp)
   )
-(run-with-idle-timer 1 t 'restart-lsp)
+;; (run-with-idle-timer 1 t 'restart-lsp)
 
 (setq lsp--auto-configure nil)
-(add-hook 'c-mode-hook (lambda ()
-						 (lsp)
-						 (flycheck-mode)
-						 (setq lsp-document-highlight-delay nil)
+(defun nav/setup-lsp ()
+  (lsp)
+  (flycheck-mode)
+  (setq lsp-document-highlight-delay nil)
 
-						 (make-local-variable 'company-backends)
-						 (setq company-backends (append (list 'company-lsp) company-backends))
-						 ))
+  (make-local-variable 'company-backends)
+  (setq company-backends (append (list 'company-lsp) company-backends)))
+
+;; (add-hook 'c-mode-hook 'nav/setup-lsp)
+;; (add-hook 'rust-mode-hook 'nav/setup-lsp)
+(add-hook 'rust-mode-hook (lambda ()
+							(make-local-variable 'indent-tabs-mode)
+							(setq indent-tabs-mode nil)
+							)
+)
+
+;; (add-hook 'c++-mode-hook (lambda ()
+;; (lsp)
+;; (flycheck-mode)
+;; (setq lsp-document-highlight-delay nil)
+
+;; (make-local-variable 'company-backends)
+;; (setq company-backends (append (list 'company-lsp) company-backends))
+;; ))
 
 
 
@@ -789,7 +825,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:family "Bitstream Vera Sans Mono" :foundry "Bits" :slant normal :weight normal :height 98 :width normal)))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -808,4 +844,4 @@
  '(git-gutter:update-interval 1)
  '(package-selected-packages
    (quote
-	(fish-mode rainbow-delimiters beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+	(smex solarized-theme nim-mode deadgrep ripgrep fish-mode rainbow-delimiters beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
