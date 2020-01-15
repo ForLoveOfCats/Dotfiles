@@ -9,19 +9,24 @@ if test "$DISPLAY" != ""
 end
 
 
+function puke
+	$argv[1] $argv[2..(count $argv)] & disown (jobs -lp)
+end
+
+
 set -x fish_term24bit 1 #FULL COLOR!
 set -Ux EDITOR micro #I'm lazy :p
 set -Ux STEAM_RUNTIME 1
 
 
 #Globally access Rust, Odin, and Nim binaries ect
-set -gx PATH $PATH $HOME/.cargo/bin $HOME/Stuff/Odin $HOME/.nimble/bin $HOME/.npm/bin
+set -gx PATH $PATH $HOME/.cargo/bin $HOME/Stuff/Odin $HOME/.nimble/bin $HOME/.npm/bin $HOME/Stuff/lite
 
 
 
 #For ease of SkyOfSteel development
 alias sos="cd ~/Stuff/SkyOfSteel"
-alias godot-mono="/home/forloveofcats/Downloads/Godot_v3.2-beta4_mono_x11_64/Godot_v3.2-beta4_mono_x11.64"
+alias godot-mono="/home/forloveofcats/Downloads/Godot_v3.2-beta6_mono_x11_64/Godot_v3.2-beta6_mono_x11.64"
 
 
 #Make C-c play nice with my multi-line custom prompt
