@@ -10,7 +10,11 @@ end
 
 
 function puke
-	$argv[1] $argv[2..(count $argv)] & disown (jobs -lp)
+	if test (count $argv) = 1
+		$argv[1] & disown (jobs -lp)
+	else
+		$argv[1] $argv[2..(count $argv)] & disown (jobs -lp)
+	end
 end
 
 
