@@ -57,6 +57,17 @@
 (edit-server-start)
 
 
+(eval-after-load "projectile"
+  '(defun projectile-files-via-ext-command (root command)
+	 "Get a list of relative file names in the project ROOT by executing COMMAND.
+
+If `command' is nil or an empty string, return nil.
+This allows commands to be disabled."
+	 (when (stringp command)
+       (let ((default-directory root))
+		 (split-string (replace-regexp-in-string "\n" "" (shell-command-to-string command)) "\0" t)))))
+
+
 ;;Keybinds
 (cua-mode)
 (setq cua-keep-region-after-copy t)
