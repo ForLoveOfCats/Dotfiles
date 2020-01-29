@@ -69,6 +69,7 @@ This allows commands to be disabled."
 
 
 ;;Keybinds
+(xterm-mouse-mode)
 (cua-mode)
 (setq cua-keep-region-after-copy t)
 ;; (global-set-key (kbd "M-x") 'helm-M-x)
@@ -399,9 +400,14 @@ This allows commands to be disabled."
 
 (defun nav/newline ()
   (interactive)
-  (if (or (equal major-mode 'csharp-mode) (equal major-mode 'c-mode) (equal major-mode 'c++-mode))
+  (if (derived-mode-p 'prog-mode)
 	  (progn
-		(if (and (= (char-before) ?{) (= (char-after) ?}))
+		(if (and
+			 (char-before)
+			 (char-after)
+			 (or
+			  (and (= (char-before) ?{) (= (char-after) ?}))
+			  (and (= (char-before) ?()) (= (char-after) ?))))
 			(progn
 			  (newline)
 			  (indent-for-tab-command)
@@ -411,7 +417,6 @@ This allows commands to be disabled."
 			  )
 		  (newline)
 		  )
-		;; (indent-for-tab-command)
 		)
 	(newline)
 	)
@@ -421,7 +426,7 @@ This allows commands to be disabled."
   (interactive)
   (if (= (length (window-list)) 1)
 	  (kill-buffer (current-buffer))
-	(kill-buffer-and-window))
+	(delete-window))
   )
 
 (defun nav/toggle-selection ()
