@@ -30,7 +30,7 @@ set -gx PATH $PATH $HOME/.cargo/bin $HOME/Stuff/Odin $HOME/.nimble/bin $HOME/.np
 
 #For ease of SkyOfSteel development
 alias sos="cd ~/Stuff/SkyOfSteel"
-alias godot-mono="/home/forloveofcats/Downloads/Godot_v3.2-beta6_mono_x11_64/Godot_v3.2-beta6_mono_x11.64"
+alias godot-mono="/home/forloveofcats/Downloads/Godot_v3.2-stable_mono_x11_64/Godot_v3.2-stable_mono_x11.64"
 
 
 #Make C-c play nice with my multi-line custom prompt
