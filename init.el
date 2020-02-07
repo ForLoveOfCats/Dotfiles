@@ -26,7 +26,7 @@
 (require 'smartparens-config)
 (require 'real-auto-save)
 (require 'flx-ido)
-(require 'dired-sidebar)
+(require 'treemacs)
 (require 'multiple-cursors)
 (require 'bind-key)
 (require 'helm)
@@ -45,8 +45,7 @@
 (require 'deadgrep)
 (require 'hl-todo)
 (require 'edit-server)
-;; (require 'doom-themes)
-(require 'solarized)
+(require 'doom-themes)
 ;; (require 'ccls)
 (require 'beacon)
 (require 'rainbow-delimiters)
@@ -82,6 +81,9 @@ This allows commands to be disabled."
 (bind-key* "<f5>" (lambda () (interactive) (projectile-compile-project "sh ./Debug.sh")))
 
 (bind-key* "C-c h" (lambda () (interactive) (call-interactively 'global-auto-highlight-symbol-mode)))
+
+(bind-key* "C-w" 'kill-this-buffer)
+(bind-key* "C-<tab>" 'delete-window)
 
 ;; (global-set-key (kbd "C-c C-c") 'kill-ring-save)
 (require 'csharp-mode)
@@ -192,7 +194,26 @@ This allows commands to be disabled."
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 (define-key global-map [escape] (lambda () (interactive) (if (active-minibuffer-window) (minibuffer-keyboard-quit)) (keyboard-quit))) ;;Awwww yeah!
 
-(global-set-key (kbd "C-`") 'dired-sidebar-toggle-sidebar)
+(global-set-key (kbd "C-\\") (lambda () (interactive) (treemacs) (other-window 1)))
+(define-key treemacs-mode-map [mouse-1]
+  (lambda (event)
+    (interactive "e")
+    (treemacs-single-click-expand-action event)
+    (if (string-prefix-p " *Treemacs-Scoped-Buffer-#<frame" (buffer-name))
+		(other-window 1))
+	)
+  )
+(define-key treemacs-mode-map [drag-mouse-1] nil)
+(global-set-key [C-down-mouse-1] nil)
+(define-key treemacs-mode-map [C-mouse-1]
+  (lambda (event)
+	(interactive "e")
+	(message "control click")
+	(select-window (treemacs-get-local-window))
+	(goto-char (posn-point (cadr event)))
+	(treemacs-visit-node-horizontal-split)
+	)
+  )
 
 
 (add-hook 'prog-mode-hook 'hs-minor-mode)
@@ -405,9 +426,7 @@ This allows commands to be disabled."
 		(if (and
 			 (char-before)
 			 (char-after)
-			 (or
-			  (and (= (char-before) ?{) (= (char-after) ?}))
-			  (and (= (char-before) ?()) (= (char-after) ?))))
+			 (and (= (char-before) ?{) (= (char-after) ?})))
 			(progn
 			  (newline)
 			  (indent-for-tab-command)
@@ -424,7 +443,12 @@ This allows commands to be disabled."
 
 (defun nav/kill-buffer-or-window ()
   (interactive)
-  (if (= (length (window-list)) 1)
+  (if
+	  (or
+	   (= (length (window-list)) 1)
+	   (and
+		(= (length (window-list)) 2)
+		(treemacs-get-local-window)))
 	  (kill-buffer (current-buffer))
 	(delete-window))
   )
@@ -516,6 +540,8 @@ This allows commands to be disabled."
   (global-set-key (kbd "/") 'forward-paragraph)
 
   (global-set-key (kbd "<mouse-1>") 'mouse-set-point)
+  (global-set-key (kbd "<down-mouse-1>") 'mouse-drag-region)
+  (global-set-key (kbd "<drag-mouse-1>") 'mouse-set-region)
   (mouse-wheel-mode t)
 
   (global-set-key (kbd "]") 'nav/right-word)
@@ -595,21 +621,18 @@ This allows commands to be disabled."
   (interactive))
 
 
-;;Keyboard smooth scrolling
-;; (setq redisplay-dont-pause t
-;; scroll-margin 1
-;; scroll-step 1
-;; scroll-conservatively 10000
-;; scroll-preserve-screen-position 1)
+;;Keyboard scrolling settings
+(setq scroll-margin 5
+	  scroll-conservatively 10000)
 (setq scroll-step 1)
 
 
-(fast-scroll-config)
-(fast-scroll-advice-scroll-functions)
-(advice-add #'mwheel-scroll :around #'fast-scroll-run-fn-minimally)
-(advice-add #'scroll-bar-toolkit-scroll :around #'fast-scroll-run-fn-minimally)
-(setq fast-scroll-throttle 0.35)
-(fast-scroll-minor-mode 1)
+;; (fast-scroll-config)
+;; (fast-scroll-advice-scroll-functions)
+;; (advice-add #'mwheel-scroll :around #'fast-scroll-run-fn-minimally)
+;; (advice-add #'scroll-bar-toolkit-scroll :around #'fast-scroll-run-fn-minimally)
+;; (setq fast-scroll-throttle 0.35)
+;; (fast-scroll-minor-mode 1)
 
 
 ;;Parenthesis autocompletion and removal
@@ -621,7 +644,8 @@ This allows commands to be disabled."
 (global-hl-todo-mode)
 
 
-;; (visible-whitespace-mode t)
+(treemacs-git-mode 'simple)
+(setq treemacs-is-never-other-window t)
 
 
 ;;Text selection settings
@@ -657,8 +681,10 @@ This allows commands to be disabled."
 (discord-emacs-run "472881182770724874")
 
 ;;GUI stuff
-(add-hook 'window-setup-hook 'toggle-frame-maximized t)
+(add-hook 'window-setup-hook '(lambda () (toggle-frame-maximized) (treemacs) (other-window 1)))
 (setq initial-buffer-choice t)
+(setq initial-scratch-message "")
+(setq initial-major-mode 'org-mode)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (setq projectile-git-submodule-command nil) ;;Prevent missing directory error when opening a project
 (projectile-mode +1)
@@ -667,13 +693,13 @@ This allows commands to be disabled."
 ;; (setq projectile-enable-caching t)
 (global-git-gutter-mode +1)
 (tool-bar-mode -1)
-;; (load-theme 'doom-one t)
-(load-theme 'solarized-dark t)
-(set-cursor-color "#00FF7F")
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(load-theme 'doom-one t)
 (global-display-line-numbers-mode)
 (column-number-mode t)
 (set-frame-font "Monospace 10" nil t)
-(beacon-mode 1)
+;; (beacon-mode 1)
 (setq isearch-allow-scroll t)
 (require 'ido)
 ;; (ido-mode t)
@@ -778,7 +804,7 @@ This allows commands to be disabled."
 (add-hook 'csharp-mode-hook #'flycheck-mode)
 (setq omnisharp-company-do-template-completion nil)
 (setq flycheck-checker-error-threshold 10000)
-;;(setq omnisharp-expected-server-version "1.32.5")
+(setq omnisharp-expected-server-version "1.34.5")
 
 
 (setq nimsuggest-path "/usr/bin/nimsuggest")
@@ -841,7 +867,7 @@ This allows commands to be disabled."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Bitstream Vera Sans Mono" :foundry "Bits" :slant normal :weight normal :height 98 :width normal)))))
+ )
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -850,14 +876,14 @@ This allows commands to be disabled."
  ;; If there is more than one, they won't work right.
  '(ahs-idle-interval 0)
  '(company-backends
-   (quote
-	(company-omnisharp company-bbdb company-eclim company-semantic company-xcode company-cmake company-capf company-files
+   '(company-omnisharp company-bbdb company-eclim company-semantic company-xcode company-cmake company-capf company-files
 					   (company-dabbrev-code company-gtags company-etags company-keywords)
-					   company-oddmuse company-dabbrev company-lsp)))
+					   company-oddmuse company-dabbrev company-lsp))
  '(custom-safe-themes
-   (quote
-	("49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "adf5275cc3264f0a938d97ded007c82913906fc6cd64458eaae6853f6be287ce" default)))
+   '("49ec957b508c7d64708b40b0273697a84d3fee4f15dd9fc4a9588016adee3dad" "6b2636879127bf6124ce541b1b2824800afc49c6ccd65439d6eb987dbf200c36" "adf5275cc3264f0a938d97ded007c82913906fc6cd64458eaae6853f6be287ce" default))
  '(git-gutter:update-interval 1)
+ '(global-yascroll-bar-mode t)
+ '(nyan-mode nil)
  '(package-selected-packages
-   (quote
-	(smex solarized-theme nim-mode deadgrep ripgrep fish-mode rainbow-delimiters beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors dired-sidebar expand-region flycheck-inline real-auto-save git-gutter projectile smartparens ace-window atom-one-dark-theme sublimity company omnisharp))))
+   '(treemacs smex nim-mode deadgrep ripgrep fish-mode rainbow-delimiters beacon go-mode tabbar company-lsp ccls which-key lsp-ui lsp-mode eglot doom-themes rust-mode edit-server rg hungry-delete aggressive-indent smart-tabs-mode fzf counsel ivy d-mode zig-mode helm-flx magit helm-projectile loop highlight-indent-guides helm centered-cursor-mode bind-key multiple-cursors expand-region flycheck-inline real-auto-save git-gutter smartparens ace-window sublimity company omnisharp))
+ '(sml-modeline-mode t))
