@@ -24,7 +24,7 @@ set -Ux STEAM_RUNTIME 1
 
 
 #Globally access Rust, Odin, and Nim binaries ect
-set -gx PATH $PATH $HOME/.cargo/bin $HOME/Stuff/Odin $HOME/.nimble/bin $HOME/.npm/bin $HOME/Stuff/lite
+set -gx PATH $PATH $HOME/.cargo/bin $HOME/Stuff/zig/build $HOME/Stuff/Odin $HOME/.nimble/bin $HOME/.npm/bin $HOME/Stuff/emacs/src $HOME/Stuff/lite
 
 
 
