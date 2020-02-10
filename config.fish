@@ -33,6 +33,10 @@ alias sos="cd ~/Stuff/SkyOfSteel"
 alias godot-mono="/home/forloveofcats/Downloads/Godot_v3.2-stable_mono_x11_64/Godot_v3.2-stable_mono_x11.64"
 
 
+#Because xclip doesn't play nice with the X clipboard
+alias clip="xclip -selection clipboard"
+
+
 #Make C-c play nice with my multi-line custom prompt
 bind \cc 'echo; echo; commandline -r ""; commandline -f repaint'
 
