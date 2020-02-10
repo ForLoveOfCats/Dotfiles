@@ -194,13 +194,21 @@ This allows commands to be disabled."
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 (define-key global-map [escape] (lambda () (interactive) (if (active-minibuffer-window) (minibuffer-keyboard-quit)) (keyboard-quit))) ;;Awwww yeah!
 
-(global-set-key (kbd "C-\\") (lambda () (interactive) (treemacs) (other-window 1)))
+(global-set-key
+ (kbd "C-\\")
+ (lambda ()
+   (interactive)
+   (let ((original-window (get-buffer-window)))
+	 (treemacs)
+	 (select-window original-window))
+   )
+ )
 (define-key treemacs-mode-map [mouse-1]
   (lambda (event)
     (interactive "e")
     (treemacs-single-click-expand-action event)
     (if (string-prefix-p " *Treemacs-Scoped-Buffer-#<frame" (buffer-name))
-		(other-window 1))
+		(other-window -1))
 	)
   )
 (define-key treemacs-mode-map [drag-mouse-1] nil)
