@@ -1,6 +1,6 @@
 function fish_prompt
     set_color ffff00
-    printf "forloveofcats"
+    printf $USER
     set_color normal
     printf ":@"
     set_color 00ff00
