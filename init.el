@@ -449,18 +449,6 @@ This allows commands to be disabled."
 	)
   )
 
-(defun nav/kill-buffer-or-window ()
-  (interactive)
-  (if
-	  (or
-	   (= (length (window-list)) 1)
-	   (and
-		(= (length (window-list)) 2)
-		(treemacs-get-local-window)))
-	  (kill-buffer (current-buffer))
-	(delete-window))
-  )
-
 (defun nav/toggle-selection ()
   (interactive)
   (if (not mark-active)
@@ -599,7 +587,6 @@ This allows commands to be disabled."
   (global-set-key (kbd "x") 'my/kill-word-at-point)
 
   (global-set-key (kbd "b") (lambda () (interactive) (nav/disable) (ido-switch-buffer))) ;(helm-buffers-list)))
-  (global-set-key (kbd "q") 'nav/kill-buffer-or-window)
 
   (global-set-key [escape] (lambda () (interactive) (if (active-minibuffer-window) (minibuffer-keyboard-quit)) (keyboard-quit))) ;;Awwww yeah!
   )
